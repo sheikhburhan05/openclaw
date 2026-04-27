@@ -1,0 +1,128 @@
+{
+  "agents": {
+    "defaults": {
+      "workspace": "/Users/prolap.pk/.openclaw/workspace",
+      "models": {
+        "anthropic/claude-sonnet-4-5": {}
+      },
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6"
+      }
+    }
+  },
+  "browser": {
+    "enabled": true
+  },
+  "channels": {
+    "slack": {
+      "mode": "socket",
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "dm": {
+        "enabled": true
+      },
+      "channels": {
+        "C0B0GAZ032L": {
+          "enabled": true
+        }
+      },
+      "streaming": {
+        "mode": "partial",
+        "nativeTransport": true
+      }
+    }
+  },
+  "gateway": {
+    "mode": "local",
+    "auth": {
+      "mode": "token",
+      "token": "b5f5c0940b80b833c0b948acc0f4ddac0fdd0ae00ed5bb83"
+    },
+    "port": 18789,
+    "bind": "loopback",
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "controlUi": {
+      "allowInsecureAuth": true
+    },
+    "nodes": {
+      "denyCommands": [
+        "camera.snap",
+        "camera.clip",
+        "screen.record",
+        "contacts.add",
+        "calendar.add",
+        "reminders.add",
+        "sms.send",
+        "sms.search"
+      ]
+    }
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "tools": {
+    "profile": "coding",
+    "web": {
+      "search": {
+        "provider": "searxng",
+        "enabled": true,
+        "openaiCodex": {}
+      },
+      "fetch": {
+        "enabled": true
+      }
+    }
+  },
+  "auth": {
+    "profiles": {
+      "anthropic:default": {
+        "provider": "anthropic",
+        "mode": "api_key"
+      }
+    }
+  },
+  "plugins": {
+    "entries": {
+      "searxng": {
+        "enabled": true,
+        "config": {
+          "webSearch": {
+            "baseUrl": "http://localhost:8888"
+          }
+        }
+      },
+      "anthropic": {
+        "enabled": true
+      },
+      "browser": {
+        "enabled": true
+      }
+    }
+  },
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "command-logger": {
+          "enabled": true
+        },
+        "session-memory": {
+          "enabled": true
+        }
+      }
+    }
+  },
+  "wizard": {
+    "lastRunAt": "2026-04-27T05:19:55.432Z",
+    "lastRunVersion": "2026.4.22",
+    "lastRunCommand": "configure",
+    "lastRunMode": "local"
+  },
+  "meta": {
+    "lastTouchedVersion": "2026.4.22",
+    "lastTouchedAt": "2026-04-27T05:19:55.537Z"
+  }
+}

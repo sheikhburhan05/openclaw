@@ -1,0 +1,7 @@
+*
+!.gitignore
+!cron/
+!cron/**
+!workspace/
+!workspace/**
+!openclaw.json

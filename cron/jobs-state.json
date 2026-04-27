@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "jobs": {
+    "dc83f20c-f3fb-43fb-8289-d9a457e2aeec": {
+      "updatedAtMs": 1777270747930,
+      "state": {
+        "lastRunAtMs": 1777270433197,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 314733,
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 0
+      }
+    },
+    "88fdef23-e195-4a67-a6d6-675d693f9a14": {
+      "updatedAtMs": 1777271512790,
+      "state": {
+        "lastRunAtMs": 1777270925057,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 587733,
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 0
+      }
+    },
+    "2d0d530b-6cc5-4091-9975-e48bfd8daa5d": {
+      "updatedAtMs": 1777272707603,
+      "state": {
+        "lastRunAtMs": 1777272428923,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 278680,
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 0
+      }
+    },
+    "51c668df-7999-4a50-8087-fef83a93f661": {
+      "updatedAtMs": 1777273746167,
+      "state": {}
+    },
+    "0e3fb0a1-5d90-4d66-9c91-9ed4f523c8a2": {
+      "updatedAtMs": 1777275494866,
+      "state": {
+        "lastRunAtMs": 1777275474537,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 20329,
+        "lastDeliveryStatus": "delivered",
+        "consecutiveErrors": 0,
+        "lastDelivered": true
+      }
+    },
+    "4f8dd909-8863-47f8-9bd2-901a98e39d96": {
+      "updatedAtMs": 1777275653762,
+      "state": {
+        "lastRunAtMs": 1777275571402,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 82360,
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 0
+      }
+    }
+  }
+}

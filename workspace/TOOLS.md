@@ -1,0 +1,164 @@
+# TOOLS.md - Local Notes
+
+Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
+
+## What Goes Here
+
+Things like:
+
+- Camera names and locations
+- SSH hosts and aliases
+- Preferred voices for TTS
+- Speaker/room names
+- Device nicknames
+- Anything environment-specific
+
+## Examples
+
+```markdown
+### Cameras
+
+- living-room → Main area, 180° wide angle
+- front-door → Entrance, motion-triggered
+
+### SSH
+
+- home-server → 192.168.1.100, user: admin
+
+### TTS
+
+- Preferred voice: "Nova" (warm, slightly British)
+- Default speaker: Kitchen HomePod
+```
+
+## Why Separate?
+
+Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
+
+---
+
+## Browser CLI — Correct Subcommand Syntax
+
+**Profile:** `openclaw` (always use `--browser-profile openclaw`)
+
+### ✅ Working commands
+```bash
+openclaw browser --browser-profile openclaw status
+openclaw browser --browser-profile openclaw open "<url>"
+openclaw browser --browser-profile openclaw snapshot
+openclaw browser --browser-profile openclaw click <ref>
+openclaw browser --browser-profile openclaw type <ref> "<text>"
+openclaw browser --browser-profile openclaw press <key>
+openclaw browser --browser-profile openclaw fill --fields '<json>'
+openclaw browser --browser-profile openclaw navigate "<url>"
+openclaw browser --browser-profile openclaw screenshot
+```
+
+### Browser help reference
+```text
+openclaw browser --help
+
+🦞 OpenClaw 2026.4.22 (00bd2cf) — Making 'I'll automate that later' happen now.
+
+Usage: openclaw browser [options] [command]
+
+Manage OpenClaw's dedicated browser (Chrome/Chromium)
+
+Options:
+  --browser-profile <name>  Browser profile name (default from config)
+  --expect-final            Wait for final response (agent) (default: false)
+  -h, --help                Display help for command
+  --json                    Output machine-readable JSON (default: false)
+  --timeout <ms>            Timeout in ms (default: "30000")
+  --token <token>           Gateway token (if required)
+  --url <url>               Gateway WebSocket URL (defaults to
+                            gateway.remote.url when configured)
+
+Commands:
+  click                     Click an element by ref from snapshot
+  close                     Close a tab (target id optional)
+  console                   Get recent console messages
+  cookies                   Read/write cookies
+  create-profile            Create a new browser profile
+  delete-profile            Delete a browser profile
+  dialog                    Arm the next modal dialog (alert/confirm/prompt)
+  download                  Click a ref and save the resulting download
+  drag                      Drag from one ref to another
+  errors                    Get recent page errors
+  evaluate                  Evaluate a function against the page or a ref
+  fill                      Fill a form with JSON field descriptors
+  focus                     Focus a tab by target id (or unique prefix)
+  highlight                 Highlight an element by ref
+  hover                     Hover an element by ai ref
+  navigate                  Navigate the current tab to a URL
+  open                      Open a URL in a new tab
+  pdf                       Save page as PDF
+  press                     Press a key
+  profiles                  List all browser profiles
+  requests                  Get recent network requests (best-effort)
+  reset-profile             Reset browser profile (moves it to Trash)
+  resize                    Resize the viewport
+  responsebody              Wait for a network response and return its body
+  screenshot                Capture a screenshot (MEDIA:<path>)
+  scrollintoview            Scroll an element into view by ref from snapshot
+  select                    Select option(s) in a select element
+  set                       Browser environment settings
+  snapshot                  Capture a snapshot (default: ai; aria is the
+                            accessibility tree)
+  start                     Start the browser (no-op if already running)
+  status                    Show browser status
+  stop                      Stop the browser (best-effort)
+  storage                   Read/write localStorage/sessionStorage
+  tab                       Tab shortcuts (index-based)
+  tabs                      List open tabs
+  trace                     Record a Playwright trace
+  type                      Type into an element by ref from snapshot
+  upload                    Arm file upload for the next file chooser
+  wait                      Wait for time, selector, URL, load state, or JS
+                            conditions
+  waitfordownload           Wait for the next download (and save it)
+
+Examples:
+  openclaw browser status
+  openclaw browser start
+  openclaw browser stop
+  openclaw browser tabs
+  openclaw browser open https://example.com
+  openclaw browser focus abcd1234
+  openclaw browser close abcd1234
+  openclaw browser screenshot
+  openclaw browser screenshot --full-page
+  openclaw browser screenshot --ref 12
+  openclaw browser snapshot
+  openclaw browser snapshot --format aria --limit 200
+  openclaw browser snapshot --efficient
+  openclaw browser snapshot --labels
+  openclaw browser navigate https://example.com
+  openclaw browser resize 1280 720
+  openclaw browser click 12 --double
+  openclaw browser type 23 "hello" --submit
+  openclaw browser press Enter
+  openclaw browser hover 44
+  openclaw browser drag 10 11
+  openclaw browser select 9 OptionA OptionB
+  openclaw browser upload /tmp/openclaw/uploads/file.pdf
+  openclaw browser fill --fields '[{"ref":"1","value":"Ada"}]'
+  openclaw browser dialog --accept
+  openclaw browser wait --text "Done"
+  openclaw browser evaluate --fn '(el) => el.textContent' --ref 7
+  openclaw browser console --level error
+  openclaw browser pdf
+
+Docs: docs.openclaw.ai/cli/browser
+```
+
+
+### LinkedIn Sales Navigator — Compose box
+- The message textarea `ref` is typically `e41` (changes after page reloads — always re-snapshot to get fresh refs)
+- `type <ref> "<text>"` works on the Sales Navigator textarea (it's a `<textarea>`, not a contenteditable div)
+- Send button `ref` appears after text is typed; it is `[disabled]` when empty
+- Sequence: `click <textbox-ref>` → `type <textbox-ref> "<msg>"` → snapshot to confirm → `click <send-ref>`
+
+---
+
+Add whatever helps you do your job. This is your cheat sheet.

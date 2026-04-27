@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "jobs": [
+    {
+      "id": "dc83f20c-f3fb-43fb-8289-d9a457e2aeec",
+      "agentId": "lead-sourcing",
+      "name": "Lead Sourcing",
+      "enabled": false,
+      "createdAtMs": 1776423233124,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 1800000,
+        "anchorMs": 1777267541641
+      },
+      "sessionTarget": "session:sales-agent-sourcing",
+      "wakeMode": "next-heartbeat",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run the end-to-end lead sourcing workflow per standing orders. Source 2 leads from LinkedIn Sales Navigator and push that leads to HubSpot."
+      },
+      "delivery": {
+        "mode": "none",
+        "channel": "last",
+        "to": "1495667036330659953",
+        "bestEffort": false
+      },
+      "deleteAfterRun": false,
+      "state": {}
+    },
+    {
+      "id": "88fdef23-e195-4a67-a6d6-675d693f9a14",
+      "agentId": "lead-qualification",
+      "name": "Lead Qualification",
+      "enabled": false,
+      "deleteAfterRun": false,
+      "createdAtMs": 1776668792937,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 1800000,
+        "anchorMs": 1777032766783
+      },
+      "sessionTarget": "session:sales-agent-qualification",
+      "wakeMode": "next-heartbeat",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute the end-to-end lead qualification workflow as per standing instructions. Retrieve 2 leads and perform full qualification on each."
+      },
+      "delivery": {
+        "mode": "none",
+        "channel": "last",
+        "bestEffort": false
+      },
+      "state": {}
+    },
+    {
+      "id": "2d0d530b-6cc5-4091-9975-e48bfd8daa5d",
+      "agentId": "lead-outreach",
+      "name": "Lead Outreach",
+      "enabled": false,
+      "deleteAfterRun": false,
+      "createdAtMs": 1776674210893,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 1800000,
+        "anchorMs": 1777272247520
+      },
+      "sessionTarget": "session:sales-agent-outreach",
+      "wakeMode": "next-heartbeat",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute the end-to-end lead outreach workflow as per standing instructions. Retrieve 2 leads and perform linkedIn sales outreach on each."
+      },
+      "delivery": {
+        "mode": "none",
+        "channel": "last",
+        "bestEffort": true
+      },
+      "state": {}
+    },
+    {
+      "id": "51c668df-7999-4a50-8087-fef83a93f661",
+      "agentId": "lead-conversation",
+      "name": "Lead Conversation",
+      "enabled": false,
+      "deleteAfterRun": false,
+      "createdAtMs": 1776840235443,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 1800000,
+        "anchorMs": 1777273746167
+      },
+      "sessionTarget": "session:sales-agent-conversation",
+      "wakeMode": "next-heartbeat",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run the end-to-end lead conversation workflow per standing instructions:\n\nOpen Sales Navigator inbox with the Unread filter\nProcess unread threads sequentially:\nRead the message\nDetermine intent\nMatch the lead in HubSpot using linkedin_sales_lead_url\nOnly reply if a HubSpot match is found (do not respond to unmatched leads)\nIf the lead expresses interest in booking, send the HubSpot Meetings link\nUpdate HubSpot using PATCH (hs_lead_status and notes) as defined in the skill\n\nConstraint:\n\nSend replies to a maximum of 2 lead conversations per run (even if more eligible threads exist)",
+        "lightContext": false
+      },
+      "delivery": {
+        "mode": "none",
+        "channel": "last",
+        "bestEffort": false
+      },
+      "state": {}
+    },
+    {
+      "id": "0e3fb0a1-5d90-4d66-9c91-9ed4f523c8a2",
+      "agentId": "linkedin-follow-up",
+      "name": "LinkedIn Follow-Up",
+      "enabled": false,
+      "deleteAfterRun": false,
+      "createdAtMs": 1777003200000,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 3600000,
+        "anchorMs": 1777274856067
+      },
+      "sessionTarget": "session:sales-agent-linkedin-follow-up",
+      "wakeMode": "next-heartbeat",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run the LinkedIn follow-up workflow per standing instructions for eligible OPEN leads (48h+ since outreach_date):\n\nSend one Sales Navigator follow-up in-thread\nAppend to outreach_conversation\nSet linkedin_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 2 leads per run (even if more eligible leads exist)",
+        "lightContext": false
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "slack",
+        "to": "channel:C0B0GAZ032L",
+        "bestEffort": false
+      },
+      "state": {}
+    },
+    {
+      "id": "4f8dd909-8863-47f8-9bd2-901a98e39d96",
+      "agentId": "email-follow-up",
+      "name": "Email Follow-Up",
+      "enabled": false,
+      "deleteAfterRun": false,
+      "createdAtMs": 1777003260000,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 1800000,
+        "anchorMs": 1777003260000
+      },
+      "sessionTarget": "session:sales-agent-email-followup",
+      "wakeMode": "next-heartbeat",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run the email-follow-up workflow per standing instructions for OPEN leads where linkedin_follow_up_sent=true and outreach_date is 72h+. Send one Instantly follow-up email, then append outreach_conversation and set email_follow_up_sent=true. Do not update outreach_date.",
+        "lightContext": true
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "last",
+        "bestEffort": false
+      },
+      "state": {}
+    }
+  ]
+}
