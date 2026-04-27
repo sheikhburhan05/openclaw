@@ -1,58 +1,8 @@
-# TOOLS.md - Local Notes
-
-Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
-
-## What Goes Here
-
-Things like:
-
-- Camera names and locations
-- SSH hosts and aliases
-- Preferred voices for TTS
-- Speaker/room names
-- Device nicknames
-- Anything environment-specific
-
-## Examples
-
-```markdown
-### Cameras
-
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
-
-### SSH
-
-- home-server → 192.168.1.100, user: admin
-
-### TTS
-
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
-```
-
-## Why Separate?
-
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
-
----
+# TOOLS.md
 
 ## Browser CLI — Correct Subcommand Syntax
 
 **Profile:** `openclaw` (always use `--browser-profile openclaw`)
-
-### ✅ Working commands
-```bash
-openclaw browser --browser-profile openclaw status
-openclaw browser --browser-profile openclaw open "<url>"
-openclaw browser --browser-profile openclaw snapshot
-openclaw browser --browser-profile openclaw click <ref>
-openclaw browser --browser-profile openclaw type <ref> "<text>"
-openclaw browser --browser-profile openclaw press <key>
-openclaw browser --browser-profile openclaw fill --fields '<json>'
-openclaw browser --browser-profile openclaw navigate "<url>"
-openclaw browser --browser-profile openclaw screenshot
-```
 
 ### Browser help reference
 ```text

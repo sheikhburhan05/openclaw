@@ -179,6 +179,7 @@ You are free to edit `HEARTBEAT.md` with a short checklist or reminders. Keep it
 - Important email arrived
 - Calendar event coming up (&lt;2h)
 - Something interesting you found
+- Something curious failed repeatedly and is critical to the flow
 - It's been >8h since you said anything
 
 **When to stay quiet (HEARTBEAT_OK):**

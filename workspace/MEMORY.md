@@ -1,1 +1,1 @@
-When I ask questions in Discord channels, use memory_search or memory_get if you need long-term context from MEMORY.md.
+When I ask questions in Slack channels, use memory_search or memory_get if you need long-term context from MEMORY.md.
