@@ -160,13 +160,13 @@
       "id": "79291c8c-baa2-4cd7-ac9e-d22566c4f254",
       "agentId": "main",
       "name": "Browser Cleanup (30min)",
-      "enabled": true,
+      "enabled": false,
       "deleteAfterRun": true,
       "createdAtMs": 1777276877917,
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777276877917
+        "anchorMs": 1777276899706
       },
       "sessionTarget": "isolated",
       "wakeMode": "now",

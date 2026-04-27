@@ -102,6 +102,13 @@
       },
       "browser": {
         "enabled": true
+      },
+      "memory-core": {
+        "config": {
+          "dreaming": {
+            "enabled": true
+          }
+        }
       }
     }
   },
@@ -126,7 +133,7 @@
   },
   "meta": {
     "lastTouchedVersion": "2026.4.22",
-    "lastTouchedAt": "2026-04-27T09:01:31.667Z"
+    "lastTouchedAt": "2026-04-27T09:42:52.131Z"
   },
   "skills": {
     "entries": {
