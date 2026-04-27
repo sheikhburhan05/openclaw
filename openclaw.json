@@ -7,6 +7,9 @@
       },
       "model": {
         "primary": "anthropic/claude-sonnet-4-6"
+      },
+      "contextPruning": {
+        "mode": "cache-ttl"
       }
     }
   },
@@ -123,6 +126,40 @@
   },
   "meta": {
     "lastTouchedVersion": "2026.4.22",
-    "lastTouchedAt": "2026-04-27T05:19:55.537Z"
+    "lastTouchedAt": "2026-04-27T09:01:31.667Z"
+  },
+  "skills": {
+    "entries": {
+      "1password": {
+        "enabled": false
+      },
+      "apple-notes": {
+        "enabled": false
+      },
+      "apple-reminders": {
+        "enabled": false
+      },
+      "bear-notes": {
+        "enabled": false
+      },
+      "blogwatcher": {
+        "enabled": false
+      },
+      "blucli": {
+        "enabled": false
+      },
+      "bluebubbles": {
+        "enabled": false
+      },
+      "camsnap": {
+        "enabled": false
+      },
+      "clawhub": {
+        "enabled": true
+      },
+      "coding-agent": {
+        "enabled": true
+      }
+    }
   }
 }
