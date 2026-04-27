@@ -140,19 +140,43 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777003260000
+        "anchorMs": 1777275561253
       },
       "sessionTarget": "session:sales-agent-email-followup",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Run the email-follow-up workflow per standing instructions for OPEN leads where linkedin_follow_up_sent=true and outreach_date is 72h+. Send one Instantly follow-up email, then append outreach_conversation and set email_follow_up_sent=true. Do not update outreach_date.",
+        "message": "Run the email follow-up workflow per standing instructions for OPEN leads where linkedin_follow_up_sent = true and outreach_date is 72h+:\n\nSend one Instantly follow-up email\nAppend to outreach_conversation\nSet email_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 2 leads per run (even if more eligible leads exist)",
         "lightContext": true
       },
       "delivery": {
-        "mode": "announce",
+        "mode": "none",
         "channel": "last",
         "bestEffort": false
+      },
+      "state": {}
+    },
+    {
+      "id": "79291c8c-baa2-4cd7-ac9e-d22566c4f254",
+      "agentId": "main",
+      "name": "Browser Cleanup (30min)",
+      "enabled": true,
+      "deleteAfterRun": true,
+      "createdAtMs": 1777276877917,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 1800000,
+        "anchorMs": 1777276877917
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Smart browser cleanup using profile 'openclaw': 1) List all tabs with 'openclaw browser --browser-profile openclaw tabs', 2) Identify tabs to close: close tabs EXCEPT the currently focused/active tab and any tabs opened in the last 30 minutes (if timestamp available), 3) Close stale tabs individually, 4) Clear cookies and storage with 'openclaw browser --browser-profile openclaw cookies --clear-all' and 'openclaw browser --browser-profile openclaw storage --clear', 5) Confirm with snapshot. Keep at least 1 tab open (the active one).",
+        "timeoutSeconds": 120
+      },
+      "delivery": {
+        "mode": "none"
       },
       "state": {}
     }

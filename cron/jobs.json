@@ -155,6 +155,30 @@
         "bestEffort": false
       },
       "state": {}
+    },
+    {
+      "id": "79291c8c-baa2-4cd7-ac9e-d22566c4f254",
+      "agentId": "main",
+      "name": "Browser Cleanup (30min)",
+      "enabled": false,
+      "deleteAfterRun": true,
+      "createdAtMs": 1777276877917,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 1800000,
+        "anchorMs": 1777276899706
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Smart browser cleanup using profile 'openclaw': 1) List all tabs with 'openclaw browser --browser-profile openclaw tabs', 2) Identify tabs to close: close tabs EXCEPT the currently focused/active tab and any tabs opened in the last 30 minutes (if timestamp available), 3) Close stale tabs individually, 4) Clear cookies and storage with 'openclaw browser --browser-profile openclaw cookies --clear-all' and 'openclaw browser --browser-profile openclaw storage --clear', 5) Confirm with snapshot. Keep at least 1 tab open (the active one).",
+        "timeoutSeconds": 120
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {}
     }
   ]
 }
