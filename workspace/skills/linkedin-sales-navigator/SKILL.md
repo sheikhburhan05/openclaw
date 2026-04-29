@@ -2,8 +2,8 @@
 name: linkedin-sales-navigator
 description: >-
   Open LinkedIn Sales Navigator and apply lead/account filters (agency type, keywords, titles,
-  seniority, headcount, geography, spotlights) using the OpenClaw browser tool
-  (navigate → snapshot → act). Use when the user mentions LinkedIn Sales Navigator, Sales Nav,
+  seniority, headcount, geography, spotlights) using the openclaw browser CLI (openclaw browser --browser-profile openclaw;
+  open/navigate → snapshot → click/type/fill). Use when the user mentions LinkedIn Sales Navigator, Sales Nav,
   lead filtering, prospect search, agency pipeline, or wants to find leads/accounts with
   specific criteria on LinkedIn. Requires an active LinkedIn Sales Navigator session in the
   openclaw browser.
@@ -13,9 +13,9 @@ metadata:
     emoji: 🎯
 ---
 
-# LinkedIn Sales Navigator (OpenClaw browser tool)
+# LinkedIn Sales Navigator (`openclaw browser`)
 
-Search and filter leads/accounts in **LinkedIn Sales Navigator** by driving the **managed `openclaw` browser** through the **`browser` tool** — navigate → snapshot → act.
+Search and filter leads/accounts in **LinkedIn Sales Navigator** by driving the managed browser with the **`openclaw browser`** CLI (**always** `--browser-profile openclaw`): `open` / `navigate` → `snapshot` → `click` / `type` / `fill` — see workspace **`TOOLS.md`** for subcommand syntax and Sales Navigator compose tips.
 
 **Docs**: [Browser](https://docs.openclaw.ai/tools/browser) · [Browser login](https://docs.openclaw.ai/tools/browser-login)
 
@@ -134,7 +134,7 @@ https://www.linkedin.com/sales/search/people?query=(spellCorrectionEnabled%3Atru
 %2522marketing%2520agency%2522%2520OR%2520%2522digital%2520marketing%2522%2520OR%2520%2522web%2520design%2522%2520OR%2520%2522web%2520development%2520agency%2522%2520OR%2520%2522creative%2520agency%2522%2520OR%2520%2522branding%2520agency%2522%2520OR%2520%2522growth%2520agency%2522%2520OR%2520%2522growth%2520marketing%2522%2520OR%2520%2522performance%2520marketing%2522
 ```
 
-#### Step 3 — Navigate directly to the built URL
+#### Step 3 — Directly open the built URL
 
 **Default preset URL** (all agency types · US + UK + Canada · Founder/Owner/Co-Founder/Director/Managing Director/CEO · 1–50 headcount · posted on LinkedIn · excludes Agent's Lead List):
 

@@ -17,7 +17,10 @@
       },
       "contextPruning": {
         "mode": "cache-ttl"
-      }
+      },
+      "contextInjection": "continuation-skip",
+      "bootstrapMaxChars": 10000,
+      "bootstrapTotalMaxChars": 80000
     }
   },
   "browser": {
@@ -78,7 +81,7 @@
     "dmScope": "per-channel-peer",
     "reset": {
       "mode": "idle",
-      "idleMinutes": 60
+      "idleMinutes": 240
     },
     "maintenance": {
       "mode": "enforce",
@@ -201,7 +204,7 @@
   },
   "meta": {
     "lastTouchedVersion": "2026.4.22",
-    "lastTouchedAt": "2026-04-28T11:09:08.106Z"
+    "lastTouchedAt": "2026-04-29T08:20:57.648Z"
   },
   "skills": {
     "entries": {
