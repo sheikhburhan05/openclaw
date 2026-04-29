@@ -3,10 +3,17 @@
     "defaults": {
       "workspace": "/Users/prolap.pk/.openclaw/workspace",
       "models": {
-        "anthropic/claude-sonnet-4-5": {}
+        "anthropic/claude-sonnet-4-5": {},
+        "google/gemini-3.1-pro-preview": {},
+        "google/gemma-4-31b-it": {},
+        "google/gemma-4-26b-it": {}
       },
       "model": {
-        "primary": "anthropic/claude-sonnet-4-6"
+        "primary": "anthropic/claude-sonnet-4-6",
+        "fallbacks": [
+          "google/gemma-4-31b-it",
+          "google/gemma-4-26b-it"
+        ]
       },
       "contextPruning": {
         "mode": "cache-ttl"
@@ -14,7 +21,8 @@
     }
   },
   "browser": {
-    "enabled": true
+    "enabled": true,
+    "evaluateEnabled": true
   },
   "channels": {
     "slack": {
@@ -61,16 +69,28 @@
         "sms.send",
         "sms.search"
       ]
+    },
+    "remote": {
+      "url": "https://macbooks-macbook-pro.tail4a89c5.ts.net:18789"
     }
   },
   "session": {
-    "dmScope": "per-channel-peer"
+    "dmScope": "per-channel-peer",
+    "reset": {
+      "mode": "idle",
+      "idleMinutes": 60
+    },
+    "maintenance": {
+      "mode": "enforce",
+      "pruneAfter": "90d",
+      "maxEntries": 100
+    }
   },
   "tools": {
     "profile": "coding",
     "web": {
       "search": {
-        "provider": "searxng",
+        "provider": "gemini",
         "enabled": true,
         "openaiCodex": {}
       },
@@ -83,6 +103,14 @@
     "profiles": {
       "anthropic:default": {
         "provider": "anthropic",
+        "mode": "api_key"
+      },
+      "openrouter:default": {
+        "provider": "openrouter",
+        "mode": "api_key"
+      },
+      "google:default": {
+        "provider": "google",
         "mode": "api_key"
       }
     }
@@ -109,6 +137,17 @@
             "enabled": true
           }
         }
+      },
+      "openrouter": {
+        "enabled": true
+      },
+      "google": {
+        "enabled": true,
+        "config": {
+          "webSearch": {
+            "apiKey": "AIzaSyBXBgsK-Q6yVtozIKf1NtLxJOzo_s5rn2U"
+          }
+        }
       }
     }
   },
@@ -123,17 +162,46 @@
           "enabled": true
         }
       }
+    },
+    "enabled": true,
+    "path": "/hooks",
+    "token": "5b0e59f7110f7e476f6f76a334d83542696219532b75866b",
+    "presets": [
+      "gmail"
+    ],
+    "allowedSessionKeyPrefixes": [
+      "hook:"
+    ],
+    "gmail": {
+      "account": "sheikhburhan055@gmail.com",
+      "label": "INBOX",
+      "topic": "projects/hip-scarab-494609-m4/topics/gog-gmail-watch",
+      "subscription": "gog-gmail-watch-push",
+      "pushToken": "599aab4036390ac73a219ad23301105853d8cb15de2b0fc9",
+      "hookUrl": "http://127.0.0.1:18789/hooks/gmail",
+      "includeBody": true,
+      "maxBytes": 20000,
+      "renewEveryMinutes": 720,
+      "serve": {
+        "bind": "127.0.0.1",
+        "port": 8788,
+        "path": "/"
+      },
+      "tailscale": {
+        "mode": "funnel",
+        "path": "/gmail-pubsub"
+      }
     }
   },
   "wizard": {
-    "lastRunAt": "2026-04-27T05:19:55.432Z",
+    "lastRunAt": "2026-04-28T11:09:08.000Z",
     "lastRunVersion": "2026.4.22",
     "lastRunCommand": "configure",
     "lastRunMode": "local"
   },
   "meta": {
     "lastTouchedVersion": "2026.4.22",
-    "lastTouchedAt": "2026-04-27T09:42:52.131Z"
+    "lastTouchedAt": "2026-04-28T11:09:08.106Z"
   },
   "skills": {
     "entries": {

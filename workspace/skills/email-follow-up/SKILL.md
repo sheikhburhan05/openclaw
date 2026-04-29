@@ -9,9 +9,9 @@ metadata:
     emoji: 💬
 ---
 
-# Email follow-up (HubSpot `OPEN` + LinkedIn follow-up done -> Instantly, 72h+)
+# Email follow-up (HubSpot `OPEN` + LinkedIn follow-up done -> Gmail via `gog`, 72h+)
 
-Use the **`hubspot`** skill and **`instantly-email`** skill together: find HubSpot contacts in **`hs_lead_status` = `OPEN`** where **`linkedin_follow_up_sent`** is **true** and **`outreach_date`** is **at least 72 hours in the past**, then send a **new follow-up email** via Instantly that references the prior touch without copy-pasting the first outreach. After each successful send, **PATCH** HubSpot by appending **`outreach_conversation`** and setting **`email_follow_up_sent`** to **true**. Do not update **`outreach_date`** in this flow.
+Use the **`hubspot`** skill and **`gog`** skill together: find HubSpot contacts in **`hs_lead_status` = `OPEN`** where **`linkedin_follow_up_sent`** is **true** and **`outreach_date`** is **at least 72 hours in the past**, then send a **new follow-up email** via Gmail using `gog` that references the prior touch without copy-pasting the first outreach. After each successful send, **PATCH** HubSpot by appending **`outreach_conversation`** and setting **`email_follow_up_sent`** to **true**. Do not update **`outreach_date`** in this flow.
 
 ## Step 1 - Fetch contacts ready for a 72h+ follow-up
 
@@ -34,7 +34,7 @@ Use the **`hubspot`** skill and **`instantly-email`** skill together: find HubSp
 
 Read **`outreach_conversation` in full** so the follow-up avoids repeating the same hook or CTA.
 
-## Step 2 - Prepare the Instantly follow-up
+## Step 2 - Prepare the Gmail follow-up
 
 For each selected contact:
 
@@ -48,26 +48,28 @@ For each selected contact:
 
 **Forbidden:** copy-pasting the original first-touch email, generic "just checking in" with no new substance, or multi-paragraph long-form emails.
 
-## Step 3 - Send follow-up via Instantly
+## Step 3 - Send follow-up via `gog`
 
-Use the `instantly-email` skill script to send from the correct sender account.
-For this flow, set Instantly `eaccount` (sender email address) to **`burhanbilal10@gmail.com`**.
+Use the `gog` skill to send from the correct Gmail account.
+For this flow, send from **`sheikhburhan055@gmail.com`**. Set `GOG_ACCOUNT=sheikhburhan055@gmail.com` or pass the equivalent `gog` account flag supported by the local setup.
+
+Because this sends a real email, confirm the final recipient, subject, and body with the owner before running the send command.
 
 **Command pattern**
 
 ```bash
-python3 workspace/skills/instantly-email/instantly_email.py test --json '{"to":"<lead_email>","eaccount":"burhanbilal10@gmail.com","subject":"<followup_subject>","body":{"text":"<followup_body>"}}'
+GOG_ACCOUNT=sheikhburhan055@gmail.com gog gmail send --to "<lead_email>" --subject "<followup_subject>" --body "<followup_body>"
 ```
 
-If your workflow uses production send endpoints in your environment, switch to your approved send command while keeping the same content rules.
+If the email body contains quotes, newlines, or shell-sensitive characters, write it to a temporary text file or use a heredoc-backed shell variable before calling `gog gmail send`, while keeping the same content rules.
 
-Confirm success from the API response before updating HubSpot.
+Confirm success from the `gog` command output before updating HubSpot.
 
 ## Step 4 - Update HubSpot after successful send
 
 Use one send datetime (when send succeeded), ISO-8601 with timezone (UTC recommended), for example `2026-04-23T10:00:00.000Z`.
 
-- **`outreach_conversation`**: **append** (do not replace). Preserve existing text and add a separator block, label **`Email follow-up (Instantly)`**, ISO time, subject, and full body.
+- **`outreach_conversation`**: **append** (do not replace). Preserve existing text and add a separator block, label **`Email follow-up (Gmail via gog)`**, ISO time, subject, and full body.
 - **`hs_lead_status`**: keep **`OPEN`** unless your portal policy explicitly changes it after follow-up.
 - **`email_follow_up_sent`** (single checkbox): set to **true** after successful send.
 
@@ -81,7 +83,7 @@ Content-Type: application/json
 {
   "properties": {
     "hs_lead_status": "OPEN",
-    "outreach_conversation": "<existing value>\n\n---\nEmail follow-up (Instantly) sent <ISO datetime>.\nSubject: <subject>\nBody: <full body>",
+    "outreach_conversation": "<existing value>\n\n---\nEmail follow-up (Gmail via gog) sent <ISO datetime>.\nSubject: <subject>\nBody: <full body>",
     "email_follow_up_sent": "true"
   }
 }
@@ -99,7 +101,7 @@ Use your portal's exact internal property name for **`email_follow_up_sent`** if
 | Lead | Company | Last `outreach_date` (before run) | Hours since last touch | Follow-up sent | `hs_lead_status` | `email_follow_up_sent` |
 |------|---------|-----------------------------------|------------------------|---------------|------------------|------------------------|
 
-If HubSpot or Instantly cannot be used reliably, do not fabricate send confirmations or patch rows.
+If HubSpot or `gog`/Gmail cannot be used reliably, do not fabricate send confirmations or patch rows.
 
 ## What this prompt is *not*
 

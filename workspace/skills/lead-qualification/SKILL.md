@@ -47,19 +47,6 @@ Content-Type: application/json
           "value": "NEW"
         },
         {
-          "propertyName": "linkedin_url",
-          "operator": "HAS_PROPERTY"
-        }
-      ]
-    },
-    {
-      "filters": [
-        {
-          "propertyName": "hs_lead_status",
-          "operator": "EQ",
-          "value": "NEW"
-        },
-        {
           "propertyName": "hs_linkedin_url",
           "operator": "HAS_PROPERTY"
         }
@@ -72,7 +59,6 @@ Content-Type: application/json
     "email",
     "company",
     "jobtitle",
-    "linkedin_url",
     "hs_linkedin_url",
     "linkedin_sales_lead_url",
     "hs_lead_grade",
@@ -92,7 +78,7 @@ Content-Type: application/json
 ```
 
 
-For each contact, capture: `id`, first/last name, company, job title, **`linkedin_url`** (public profile — **use for Apollo**), **`hs_linkedin_url`** (if set), **`linkedin_sales_lead_url`** (Sales Navigator lead page), email, phone, and any HubSpot location fields — these are the baseline to compare against Apollo so you only **fill gaps** on the contact and on the linked **company** (domain / website / industry live on the **company** object; fetch or create that record during backfill — see below).
+For each contact, capture: `id`, first/last name, company, job title, **`hs_linkedin_url`** (public profile — **use for Apollo**), **`linkedin_sales_lead_url`** (Sales Navigator lead page), email, phone, and any HubSpot location fields — these are the baseline to compare against Apollo so you only **fill gaps** on the contact and on the linked **company** (domain / website / industry live on the **company** object; fetch or create that record during backfill — see below).
 
 ---
 
@@ -103,8 +89,8 @@ Use **`APOLLO_API_KEY`** and the bundled script from the apollo-enrichment skill
 ```bash
 cd workspace/skills/apollo-enrichment
 
-# Person match — use public profile URL only (linkedin_url preferred; else hs_linkedin_url)
-python3 apollo.py enrich --linkedin "<linkedin_url_or_hs_linkedin_url_public_profile>" --json
+# Person match — use public profile URL only (hs_linkedin_url)
+python3 apollo.py enrich --linkedin "<hs_linkedin_url_public_profile>" --json
 
 # If you have work email from HubSpot, also try:
 python3 apollo.py enrich --email "<email>" --json
@@ -113,7 +99,7 @@ python3 apollo.py enrich --email "<email>" --json
 python3 apollo.py company --domain "<org_primary_domain>" --json
 ```
 
-From Apollo **person** JSON, extract at least: name, title, headline, email, phone, city/state/country, `linkedin_url`, and `organization` (name, `primary_domain`, `estimated_num_employees`, industry, short description, technologies, etc.).
+From Apollo **person** JSON, extract at least: name, title, headline, email, phone, city/state/country, public LinkedIn profile URL, and `organization` (name, `primary_domain`, `estimated_num_employees`, industry, short description, technologies, etc.).
 
 From Apollo **organization** JSON, extract: domain, industry, employee estimates, revenue/funding hints, description, tech stack — use these to inform **website quality**, **revenue indicators**, and **business maturity** where LinkedIn alone is thin.
 
@@ -158,7 +144,7 @@ In that case, note in the qualification block: `Apollo: unavailable or partial �
 
 **Mandatory for every contact:** complete the full Sales Navigator profile review **and** the website visits below—do not skip or shorten this step because Apollo returned data; use Apollo as a cross-check when it is available. When Apollo failed or is partial (see Step 2), extract everything you can from the profile and the web so those rows can still be scored.
 
-1. **Open the lead** in Sales Navigator using **`linkedin_sales_lead_url`** if present; otherwise open **`linkedin_url`** / **`hs_linkedin_url`**.
+1. **Open the lead** in Sales Navigator using **`linkedin_sales_lead_url`** if present; otherwise open **`hs_linkedin_url`**.
 2. From the **Sales Navigator lead profile** (and linked company panel if shown), capture:
    - Headline, About, current role, company name, **employee range** if shown, location / geography
    - Recent posts and engagement (**LinkedIn activity** for scoring)
@@ -285,8 +271,7 @@ Content-Type: application/json
     "email": "<Email — set from Apollo when HubSpot was missing; omit if still unknown>",
     "phone": "<From Apollo if missing on contact>",
     "jobtitle": "<Role>",
-    "linkedin_url": "<Public LinkedIn profile URL — use for Apollo>",
-    "hs_linkedin_url": "<Same public profile URL as linkedin_url>",
+    "hs_linkedin_url": "<Public LinkedIn profile URL — use for Apollo>",
     "linkedin_sales_lead_url": "<Sales Navigator lead URL from address bar>",
     "lead_score": "<0–100 — total score from Step 5; use string for HubSpot number field>",
     "lead_score_details": "<multi-line — see below>",

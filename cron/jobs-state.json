@@ -2,12 +2,12 @@
   "version": 1,
   "jobs": {
     "dc83f20c-f3fb-43fb-8289-d9a457e2aeec": {
-      "updatedAtMs": 1777270747930,
+      "updatedAtMs": 1777441658040,
       "state": {
-        "lastRunAtMs": 1777270433197,
+        "lastRunAtMs": 1777441333485,
         "lastRunStatus": "ok",
         "lastStatus": "ok",
-        "lastDurationMs": 314733,
+        "lastDurationMs": 324555,
         "lastDeliveryStatus": "not-requested",
         "consecutiveErrors": 0
       }
@@ -66,9 +66,17 @@
       "state": {}
     },
     "162a7089-839c-453b-a5c4-6d2ecd1e617c": {
-      "updatedAtMs": 1777283002536,
+      "updatedAtMs": 1777415326909,
       "state": {
-        "nextRunAtMs": 1777327200000
+        "nextRunAtMs": 1777500000000,
+        "lastRunAtMs": 1777414417957,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 908952,
+        "lastErrorReason": "timeout",
+        "lastDeliveryStatus": "not-requested",
+        "consecutiveErrors": 2,
+        "lastError": "cron: job execution timed out"
       }
     }
   }

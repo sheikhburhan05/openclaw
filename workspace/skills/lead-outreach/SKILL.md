@@ -60,13 +60,18 @@ Content-Type: application/json
     "outreach_date",
     "hs_lead_status"
   ],
-  "sorts": ["-lead_score"],
+  "sorts": [
+    {
+      "propertyName": "lead_score",
+      "direction": "DESCENDING"
+    }
+  ],
   "limit": 5,
   "after": "0"
 }
 ```
 
-**Sort:** Use descending **`lead_score`** first. If your HubSpot API rejects `-lead_score`, use `["lead_score"]` and **re-order results client-side** so the highest numeric **`lead_score`** is messaged first.
+**Sort:** Use descending **`lead_score`** first with the object-form sort shown above. If your HubSpot API rejects that sort shape, fetch the batch without a server sort and **re-order results client-side** so the highest numeric **`lead_score`** is messaged first.
 
 **Legacy rows:** If some `IN_PROGRESS` contacts lack **`lead_score`** (not yet backfilled), remove the **`lead_score` HAS_PROPERTY** filter, fetch a larger batch if needed, and **sort client-side** by numeric **`lead_score`** descending (treat empty as last). Contacts **without** **`linkedin_sales_lead_url`** are **out of scope** for this prompt — backfill that URL via lead sourcing / qualification before outreach.
 
