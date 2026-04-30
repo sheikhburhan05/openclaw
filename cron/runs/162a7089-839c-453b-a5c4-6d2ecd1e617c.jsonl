@@ -1,2 +1,3 @@
 {"ts":1777329043048,"jobId":"162a7089-839c-453b-a5c4-6d2ecd1e617c","action":"finished","status":"error","error":"cron: job execution timed out","deliveryStatus":"not-requested","runAtMs":1777328038710,"durationMs":1003749,"nextRunAtMs":1777413600000}
 {"ts":1777415326918,"jobId":"162a7089-839c-453b-a5c4-6d2ecd1e617c","action":"finished","status":"error","error":"cron: job execution timed out","deliveryStatus":"not-requested","runAtMs":1777414417957,"durationMs":908952,"nextRunAtMs":1777500000000}
+{"ts":1777531110155,"jobId":"162a7089-839c-453b-a5c4-6d2ecd1e617c","action":"finished","status":"ok","summary":"__openclaw_memory_core_short_term_promotion_dream__","deliveryStatus":"not-requested","runAtMs":1777531060799,"durationMs":49354,"nextRunAtMs":1777586400000}

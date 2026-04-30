@@ -1,8 +1,6 @@
 # TOOLS.md
 
-## Browser CLI — Correct Subcommand Syntax
-
-**Profile:** `openclaw` (always use `--browser-profile openclaw`)
+## Browser CLI — Correct Syntax
 
 ### Browser help reference
 ```text

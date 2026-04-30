@@ -10,13 +10,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777267541641
+        "anchorMs": 1777461145323
       },
       "sessionTarget": "session:sales-agent-sourcing",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Run the end-to-end lead sourcing workflow per standing orders. Source 2 leads from LinkedIn Sales Navigator and push that leads to HubSpot."
+        "message": "Run the end-to-end lead sourcing workflow per standing orders. Source 2 leads from LinkedIn Sales Navigator and push that leads to HubSpot.\n\nAT THE END GIVE THE COST PER LEAD BASED on TOKEN USED for COST ANALYSIS."
       },
       "delivery": {
         "mode": "none",
@@ -37,13 +37,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777448289985
+        "anchorMs": 1777461975616
       },
       "sessionTarget": "session:sales-agent-qualification",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Execute the end-to-end lead qualification workflow as per standing instructions. Retrieve 1 leads and perform full qualification on each."
+        "message": "Execute the end-to-end lead qualification workflow as per standing instructions. Retrieve 2 leads and perform full qualification on each.\n\nAT THE END GIVE THE COST PER LEAD BASED on TOKEN USED for COST ANALYSIS."
       },
       "delivery": {
         "mode": "none",
@@ -62,13 +62,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777448658753
+        "anchorMs": 1777464608902
       },
       "sessionTarget": "session:sales-agent-outreach",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Execute the end-to-end lead outreach workflow as per standing instructions. Retrieve 1 leads and perform linkedIn sales outreach on each."
+        "message": "Execute the end-to-end lead outreach workflow as per standing instructions. Retrieve 2 leads and perform linkedIn sales outreach on each.\n\nAT THE END GIVE THE COST PER LEAD BASED on TOKEN USED for COST ANALYSIS."
       },
       "delivery": {
         "mode": "none",
@@ -87,13 +87,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777273746167
+        "anchorMs": 1777531569107
       },
       "sessionTarget": "session:sales-agent-conversation",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Run the end-to-end lead conversation workflow per standing instructions:\n\nOpen Sales Navigator inbox with the Unread filter\nProcess unread threads sequentially:\nRead the message\nDetermine intent\nMatch the lead in HubSpot using linkedin_sales_lead_url\nOnly reply if a HubSpot match is found (do not respond to unmatched leads)\nIf the lead expresses interest in booking, send the HubSpot Meetings link\nUpdate HubSpot using PATCH (hs_lead_status and notes) as defined in the skill\n\nConstraint:\n\nSend replies to a maximum of 2 lead conversations per run (even if more eligible threads exist)",
+        "message": "Run the end-to-end lead conversation workflow per standing instructions:\n\nOpen Sales Navigator inbox with the Unread filter\nProcess unread threads sequentially:\nRead the message\nDetermine intent\nMatch the lead in HubSpot using linkedin_sales_lead_url\nOnly reply if a HubSpot match is found (do not respond to unmatched leads)\nIf the lead expresses interest in booking, send the HubSpot Meetings link\nUpdate HubSpot using PATCH (hs_lead_status and notes) as defined in the skill\n\nConstraint:\n\nSend replies to a maximum of 2 lead conversations per run (even if more eligible threads exist)\n\nAT THE END GIVE THE COST PER LEAD BASED on TOKEN USED for COST ANALYSIS.",
         "lightContext": false
       },
       "delivery": {
@@ -113,13 +113,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 3600000,
-        "anchorMs": 1777274856067
+        "anchorMs": 1777532353730
       },
       "sessionTarget": "session:sales-agent-linkedin-follow-up",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Run the LinkedIn follow-up workflow per standing instructions for eligible OPEN leads (48h+ since outreach_date):\n\nSend one Sales Navigator follow-up in-thread\nAppend to outreach_conversation\nSet linkedin_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 2 leads per run (even if more eligible leads exist)",
+        "message": "Run the LinkedIn follow-up workflow per standing instructions for eligible OPEN leads (48h+ since outreach_date):\n\nSend one Sales Navigator follow-up in-thread\nAppend to outreach_conversation\nSet linkedin_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 2 leads per run (even if more eligible leads exist)\n\n\nAT THE END GIVE THE COST PER LEAD BASED on TOKEN USED for COST ANALYSIS.",
         "lightContext": false
       },
       "delivery": {
@@ -140,13 +140,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777449616288
+        "anchorMs": 1777450819633
       },
       "sessionTarget": "session:sales-agent-email-followup",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Run the email follow-up workflow per standing instructions for OPEN leads where linkedin_follow_up_sent = true and outreach_date is 72h+:\n\nSend one Instantly follow-up email\nAppend to outreach_conversation\nSet email_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 1 leads per run (even if more eligible leads exist)",
+        "message": "Run the email follow-up workflow per standing instructions for OPEN leads where linkedin_follow_up_sent = true and outreach_date is 72h+:\n\nSend one follow-up email using gog\nAppend to outreach_conversation\nSet email_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 1 leads per run (even if more eligible leads exist)",
         "lightContext": true
       },
       "delivery": {

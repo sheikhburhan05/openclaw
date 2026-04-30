@@ -10,7 +10,7 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777267541641
+        "anchorMs": 1777461145323
       },
       "sessionTarget": "session:sales-agent-sourcing",
       "wakeMode": "next-heartbeat",
@@ -37,13 +37,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777448289985
+        "anchorMs": 1777461975616
       },
       "sessionTarget": "session:sales-agent-qualification",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Execute the end-to-end lead qualification workflow as per standing instructions. Retrieve 1 leads and perform full qualification on each."
+        "message": "Execute the end-to-end lead qualification workflow as per standing instructions. Retrieve 2 leads and perform full qualification on each."
       },
       "delivery": {
         "mode": "none",
@@ -62,13 +62,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777448658753
+        "anchorMs": 1777464608902
       },
       "sessionTarget": "session:sales-agent-outreach",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Execute the end-to-end lead outreach workflow as per standing instructions. Retrieve 1 leads and perform linkedIn sales outreach on each."
+        "message": "Execute the end-to-end lead outreach workflow as per standing instructions. Retrieve 2 leads and perform linkedIn sales outreach on each."
       },
       "delivery": {
         "mode": "none",
@@ -87,7 +87,7 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777273746167
+        "anchorMs": 1777531569107
       },
       "sessionTarget": "session:sales-agent-conversation",
       "wakeMode": "next-heartbeat",
@@ -113,7 +113,7 @@
       "schedule": {
         "kind": "every",
         "everyMs": 3600000,
-        "anchorMs": 1777274856067
+        "anchorMs": 1777532353730
       },
       "sessionTarget": "session:sales-agent-linkedin-follow-up",
       "wakeMode": "next-heartbeat",
@@ -140,7 +140,7 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777450819633
+        "anchorMs": 1777532708662
       },
       "sessionTarget": "session:sales-agent-email-followup",
       "wakeMode": "next-heartbeat",

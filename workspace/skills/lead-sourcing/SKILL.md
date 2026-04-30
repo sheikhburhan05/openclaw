@@ -7,7 +7,7 @@ description: >-
   scoring or qualification (those live in the lead-qualification prompt). Use when the user
   wants to source leads, push Sales Nav prospects into CRM, run get-leads, or fill the top of
   the funnel before Apollo/qualification. Requires linkedin-sales-navigator (browser) and
-  hubspot skills; active Sales Navigator session in the OpenClaw browser.
+  hubspot skills.
 
 metadata:
   openclaw:

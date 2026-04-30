@@ -59,7 +59,7 @@
       "resetOnExit": false
     },
     "controlUi": {
-      "allowInsecureAuth": true
+      "allowInsecureAuth": false
     },
     "nodes": {
       "denyCommands": [

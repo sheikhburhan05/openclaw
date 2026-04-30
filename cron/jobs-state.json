@@ -2,68 +2,68 @@
   "version": 1,
   "jobs": {
     "dc83f20c-f3fb-43fb-8289-d9a457e2aeec": {
-      "updatedAtMs": 1777448238786,
+      "updatedAtMs": 1777461703311,
       "state": {
-        "lastRunAtMs": 1777447899223,
+        "lastRunAtMs": 1777461157290,
         "lastRunStatus": "ok",
         "lastStatus": "ok",
-        "lastDurationMs": 339563,
+        "lastDurationMs": 546021,
         "lastDeliveryStatus": "not-requested",
         "consecutiveErrors": 0
       }
     },
     "88fdef23-e195-4a67-a6d6-675d693f9a14": {
-      "updatedAtMs": 1777448617286,
+      "updatedAtMs": 1777462803926,
       "state": {
-        "lastRunAtMs": 1777448293649,
+        "lastRunAtMs": 1777461982953,
         "lastRunStatus": "ok",
         "lastStatus": "ok",
-        "lastDurationMs": 323637,
+        "lastDurationMs": 820973,
         "lastDeliveryStatus": "not-requested",
         "consecutiveErrors": 0
       }
     },
     "2d0d530b-6cc5-4091-9975-e48bfd8daa5d": {
-      "updatedAtMs": 1777449046908,
+      "updatedAtMs": 1777465269923,
       "state": {
-        "lastRunAtMs": 1777448662809,
+        "lastRunAtMs": 1777464782882,
         "lastRunStatus": "ok",
         "lastStatus": "ok",
-        "lastDurationMs": 384099,
+        "lastDurationMs": 487041,
         "lastDeliveryStatus": "not-requested",
         "consecutiveErrors": 0
       }
     },
     "51c668df-7999-4a50-8087-fef83a93f661": {
-      "updatedAtMs": 1777455500107,
+      "updatedAtMs": 1777532077553,
       "state": {
-        "lastRunAtMs": 1777455303570,
+        "lastRunAtMs": 1777531700036,
         "lastRunStatus": "ok",
         "lastStatus": "ok",
-        "lastDurationMs": 196537,
+        "lastDurationMs": 377517,
         "lastDeliveryStatus": "not-requested",
         "consecutiveErrors": 0
       }
     },
     "0e3fb0a1-5d90-4d66-9c91-9ed4f523c8a2": {
-      "updatedAtMs": 1777275494866,
+      "updatedAtMs": 1777532623921,
       "state": {
-        "lastRunAtMs": 1777275474537,
+        "lastRunAtMs": 1777532357737,
         "lastRunStatus": "ok",
         "lastStatus": "ok",
-        "lastDurationMs": 20329,
+        "lastDurationMs": 266184,
         "lastDeliveryStatus": "delivered",
         "consecutiveErrors": 0,
         "lastDelivered": true
       }
     },
     "4f8dd909-8863-47f8-9bd2-901a98e39d96": {
-      "updatedAtMs": 1777450819633,
+      "updatedAtMs": 1777533024118,
       "state": {
-        "lastRunAtMs": 1777450020411,
+        "lastRunAtMs": 1777532860676,
         "lastRunStatus": "ok",
         "lastStatus": "ok",
-        "lastDurationMs": 76097,
+        "lastDurationMs": 163442,
         "lastDeliveryStatus": "not-requested",
         "consecutiveErrors": 0
       }
@@ -73,17 +73,15 @@
       "state": {}
     },
     "162a7089-839c-453b-a5c4-6d2ecd1e617c": {
-      "updatedAtMs": 1777415326909,
+      "updatedAtMs": 1777531110153,
       "state": {
-        "nextRunAtMs": 1777500000000,
-        "lastRunAtMs": 1777414417957,
-        "lastRunStatus": "error",
-        "lastStatus": "error",
-        "lastDurationMs": 908952,
-        "lastErrorReason": "timeout",
+        "nextRunAtMs": 1777586400000,
+        "lastRunAtMs": 1777531060799,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 49354,
         "lastDeliveryStatus": "not-requested",
-        "consecutiveErrors": 2,
-        "lastError": "cron: job execution timed out"
+        "consecutiveErrors": 0
       }
     }
   }

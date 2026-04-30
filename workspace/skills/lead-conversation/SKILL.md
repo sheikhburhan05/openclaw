@@ -87,7 +87,7 @@ For each unread conversation (cap per run if needed, e.g. 10–20):
        "company",
        "jobtitle",
        "linkedin_sales_lead_url",
-       "hs_content_membership_notes",
+       "outreach_conversation",
        "hs_lead_status"
      ],
      "limit": 5
@@ -96,7 +96,7 @@ For each unread conversation (cap per run if needed, e.g. 10–20):
 
    If **`EQ`** misses due to minor URL differences, fall back to a broader fetch (e.g. **`CONTAINS`** the stable lead path segment) and **confirm** an exact person match — never reply on a weak name-only match.
 
-   After a match, re-read **`hs_content_membership_notes`** (and similar fields) for **pathway** (Agency vs Business Owner) and prior outreach so the reply stays **consistent** with what they already know.
+   After a match, re-read **`outreach_conversation`** (and similar fields) for **pathway** (Agency vs Business Owner) and prior outreach so the reply stays **consistent** with what they already know.
 
 6. **Reply gate:**
    - **Match found in HubSpot** → **Compose and send** a reply in the Sales Navigator thread that **directly serves the detected intent** (see step 2), uses pathway context from HubSpot notes, and aligns with **`lead-outreach.md`** tone where applicable. Draft the **entire** message first, then insert it into the composer **once** (see **Composer workflow** under **Message format (Sales Navigator)**). If intent is **Book meeting / schedule call** (or equivalent), **include** `https://meetings-ap1.hubspot.com/mostly` in the message body as specified in **HubSpot Meetings — booking a call**. After sending, **Step 3** requires **`hs_lead_status`** → **`MEETING_LINK_SENT`**. Follow **Message format (Sales Navigator)** below so the sent text never contains escape artifacts.
