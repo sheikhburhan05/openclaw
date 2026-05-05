@@ -10,13 +10,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777461145323
+        "anchorMs": 1777880279438
       },
       "sessionTarget": "session:sales-agent-sourcing",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Run the end-to-end lead sourcing workflow per standing orders. Source 2 leads from LinkedIn Sales Navigator and push that leads to HubSpot."
+        "message": "Run the end-to-end lead sourcing workflow per standing orders. Source 1 leads from LinkedIn Sales Navigator and push that leads to HubSpot."
       },
       "delivery": {
         "mode": "none",
@@ -37,13 +37,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777461975616
+        "anchorMs": 1777880287737
       },
       "sessionTarget": "session:sales-agent-qualification",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Execute the end-to-end lead qualification workflow as per standing instructions. Retrieve 2 leads and perform full qualification on each."
+        "message": "Execute the end-to-end lead qualification workflow as per standing instructions. Retrieve 1 leads and perform full qualification on each."
       },
       "delivery": {
         "mode": "none",
@@ -62,13 +62,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1777464608902
+        "anchorMs": 1777880299442
       },
       "sessionTarget": "session:sales-agent-outreach",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Execute the end-to-end lead outreach workflow as per standing instructions. Retrieve 2 leads and perform linkedIn sales outreach on each."
+        "message": "Execute the end-to-end lead outreach workflow as per standing instructions. Retrieve 1 leads and perform linkedIn sales outreach on each."
       },
       "delivery": {
         "mode": "none",
@@ -113,20 +113,17 @@
       "schedule": {
         "kind": "every",
         "everyMs": 3600000,
-        "anchorMs": 1777532353730
+        "anchorMs": 1777893551057
       },
       "sessionTarget": "session:sales-agent-linkedin-follow-up",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Run the LinkedIn follow-up workflow per standing instructions for eligible OPEN leads (48h+ since outreach_date):\n\nSend one Sales Navigator follow-up in-thread\nAppend to outreach_conversation\nSet linkedin_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 2 leads per run (even if more eligible leads exist)",
+        "message": "Run the LinkedIn follow-up workflow per standing instructions for eligible OPEN leads (48h+ since outreach_date):\n\nSend one Sales Navigator follow-up in-thread\nAppend to outreach_conversation\nSet linkedin_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 1 leads per run (even if more eligible leads exist)",
         "lightContext": false
       },
       "delivery": {
-        "mode": "announce",
-        "channel": "slack",
-        "to": "channel:C0B0GAZ032L",
-        "bestEffort": false
+        "mode": "none"
       },
       "state": {}
     },
@@ -150,9 +147,7 @@
         "lightContext": true
       },
       "delivery": {
-        "mode": "none",
-        "channel": "last",
-        "bestEffort": false
+        "mode": "none"
       },
       "state": {}
     },
@@ -190,11 +185,15 @@
         "kind": "cron",
         "expr": "0 3 * * *"
       },
-      "sessionTarget": "main",
+      "sessionTarget": "isolated",
       "wakeMode": "now",
       "payload": {
-        "kind": "systemEvent",
-        "text": "__openclaw_memory_core_short_term_promotion_dream__"
+        "kind": "agentTurn",
+        "message": "__openclaw_memory_core_short_term_promotion_dream__",
+        "lightContext": true
+      },
+      "delivery": {
+        "mode": "none"
       },
       "state": {}
     }

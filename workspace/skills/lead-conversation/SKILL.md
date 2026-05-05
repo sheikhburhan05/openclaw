@@ -20,7 +20,7 @@ Use the **`hubspot`** skill and **`linkedin-sales-navigator`** skill together: o
 
 ## Step 1 — Open Sales Navigator Inbox (Unread)
 
-1. Navigate in the browser to ( **`filter=UNREAD`** is applied in the URL — do not substitute the plain inbox URL):
+1. Open in the browser to ( **`filter=UNREAD`** is applied in the URL — do not substitute the plain inbox URL):
 
    ```
    https://www.linkedin.com/sales/inbox/compose?filter=UNREAD

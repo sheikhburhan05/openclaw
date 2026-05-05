@@ -16,12 +16,34 @@
         ]
       },
       "contextPruning": {
-        "mode": "cache-ttl"
+        "mode": "cache-ttl",
+        "ttl": "20m"
+      },
+      "compaction": {
+        "reserveTokensFloor": 40000,
+        "memoryFlush": {
+          "enabled": true,
+          "softThresholdTokens": 4000,
+          "systemPrompt": "Session nearing compaction. Store durable memories now.",
+          "prompt": "Write any lasting notes to memory/YYYY-MM-DD.md; reply with NO_REPLY if nothing to store."
+        }
       },
       "contextInjection": "continuation-skip",
       "bootstrapMaxChars": 10000,
       "bootstrapTotalMaxChars": 80000
-    }
+    },
+    "list": [
+      {
+        "id": "main",
+        "tools": {
+          "profile": "full",
+          "alsoAllow": [
+            "browser",
+            "canvas"
+          ]
+        }
+      }
+    ]
   },
   "browser": {
     "enabled": true,
@@ -53,13 +75,17 @@
       "token": "b5f5c0940b80b833c0b948acc0f4ddac0fdd0ae00ed5bb83"
     },
     "port": 18789,
-    "bind": "loopback",
+    "bind": "lan",
     "tailscale": {
       "mode": "off",
       "resetOnExit": false
     },
     "controlUi": {
-      "allowInsecureAuth": false
+      "allowInsecureAuth": true,
+      "allowedOrigins": [
+        "*"
+      ],
+      "dangerouslyDisableDeviceAuth": true
     },
     "nodes": {
       "denyCommands": [
@@ -139,7 +165,8 @@
           "dreaming": {
             "enabled": true
           }
-        }
+        },
+        "enabled": true
       },
       "openrouter": {
         "enabled": true
@@ -174,37 +201,17 @@
     ],
     "allowedSessionKeyPrefixes": [
       "hook:"
-    ],
-    "gmail": {
-      "account": "sheikhburhan055@gmail.com",
-      "label": "INBOX",
-      "topic": "projects/hip-scarab-494609-m4/topics/gog-gmail-watch",
-      "subscription": "gog-gmail-watch-push",
-      "pushToken": "599aab4036390ac73a219ad23301105853d8cb15de2b0fc9",
-      "hookUrl": "http://127.0.0.1:18789/hooks/gmail",
-      "includeBody": true,
-      "maxBytes": 20000,
-      "renewEveryMinutes": 720,
-      "serve": {
-        "bind": "127.0.0.1",
-        "port": 8788,
-        "path": "/"
-      },
-      "tailscale": {
-        "mode": "funnel",
-        "path": "/gmail-pubsub"
-      }
-    }
+    ]
   },
   "wizard": {
-    "lastRunAt": "2026-04-28T11:09:08.000Z",
+    "lastRunAt": "2026-05-04T07:21:08.307Z",
     "lastRunVersion": "2026.4.22",
-    "lastRunCommand": "configure",
+    "lastRunCommand": "doctor",
     "lastRunMode": "local"
   },
   "meta": {
-    "lastTouchedVersion": "2026.4.22",
-    "lastTouchedAt": "2026-04-29T08:20:57.648Z"
+    "lastTouchedVersion": "2026.5.3-1",
+    "lastTouchedAt": "2026-05-04T11:45:27.965Z"
   },
   "skills": {
     "entries": {
