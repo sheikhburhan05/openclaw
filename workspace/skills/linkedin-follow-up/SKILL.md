@@ -51,9 +51,10 @@ For each selected contact:
 
 - Nod to prior message **without** long quoting.
 - **One** clear next step or question; match **`lead-outreach.md`** / pathway tone where applicable.
-- **Message format:** Type **real** line breaks in the composer. Do **not** paste **`\n`**, **`\t`**, etc.
+- **Draft first:** Write the **whole** message at once in your draft, using **real** line breaks. Do **not** include literal **`\n`**, **`\t`**, etc. in the text you will paste.
+- **Paste:** Copy that full body and **paste** it into the Sales Navigator thread **Input body** box (composer) in one go — do not retype line-by-line in the UI.
 
-**Send:** In the open Sales Navigator message thread panel, type the subject into the subject field and the body into the composer, click **Send**, and confirm the message appears in the thread.
+**Send:** In the open Sales Navigator message thread panel, enter the subject in the subject field, **paste** the full body into **Input body**, click **Send**, and confirm the message appears in the thread.
 
 ## Step 4 — Update HubSpot after a successful follow-up
 
