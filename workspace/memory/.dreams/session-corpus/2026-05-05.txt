@@ -1,0 +1,1 @@
+[main/sessions/main/6058c80f-e0a8-4f54-bee1-e7e5f5afad03.jsonl#L7] Assistant: <think> </think> <final>HEARTBEAT_OK</final>

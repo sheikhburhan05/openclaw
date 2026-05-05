@@ -51,14 +51,14 @@ For each selected contact:
 ## Step 3 - Send follow-up via `gog`
 
 Use the `gog` skill to send from the correct Gmail account.
-For this flow, send from **`sheikhburhan055@gmail.com`**. Set `GOG_ACCOUNT=sheikhburhan055@gmail.com` or pass the equivalent `gog` account flag supported by the local setup.
+For this flow, send from **`development@withmostly.com`**. Set `GOG_ACCOUNT=development@withmostly.com` or pass the equivalent `gog` account flag supported by the local setup.
 
 Because this sends a real email, confirm the final recipient, subject, and body with the owner before running the send command.
 
 **Command pattern**
 
 ```bash
-GOG_ACCOUNT=sheikhburhan055@gmail.com gog gmail send --to "<lead_email>" --subject "<followup_subject>" --body "<followup_body>"
+GOG_ACCOUNT=development@withmostly.com gog gmail send --to "<lead_email>" --subject "<followup_subject>" --body "<followup_body>"
 ```
 
 If the email body contains quotes, newlines, or shell-sensitive characters, write it to a temporary text file or use a heredoc-backed shell variable before calling `gog gmail send`, while keeping the same content rules.
