@@ -2,10 +2,10 @@
 
 _Learn about the person you're helping. Update this as you go._
 
-- **Name:** Burhan
-- **What to call them:** Burhan
+- **Name:** Matthew Sibberas
+- **What to call them:** Matthew
 - **Pronouns:** _(optional)_
-- **Timezone:** GMT+5 (Asia/Karachi, Pakistan)
+- **Timezone:** AEST UTC+10 / AEDT UTC+11 (Australia/Sydney, NSW)
 - **Notes:** Prefers formal and professional communication
 
 ## Context
