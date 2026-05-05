@@ -4,4 +4,3 @@
 !cron/**
 !workspace/
 !workspace/**
-!openclaw.json
