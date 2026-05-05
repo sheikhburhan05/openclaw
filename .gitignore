@@ -1,6 +1,8 @@
 *
 !.gitignore
 !cron/
-!cron/**
+cron/*
+!cron/jobs.json
 !workspace/
 !workspace/**
+workspace/memory/
