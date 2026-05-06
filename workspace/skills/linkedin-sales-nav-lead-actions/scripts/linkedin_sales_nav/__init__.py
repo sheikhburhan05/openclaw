@@ -1,5 +1,4 @@
 """Sales Navigator Playwright helpers (connect, save, InMail).
-
 CLI entry: ``scripts/linkedin_sales_nav_cli.py`` (optional ``sales_nav_connect.py`` forwarder).
 """
 

@@ -18,6 +18,7 @@ PRIMARY_CONNECT_NAME = re.compile(r"^\s*connect\s*$", re.I)
 MENU_CONNECT_TEXT = re.compile(r"^\s*connect\s*$", re.I)
 
 OVERFLOW_BUTTON_SELECTOR_CANDIDATES: tuple[str, ...] = (
+    'button[data-x--lead-actions-bar-overflow-menu]',
     'button[aria-label*="Open actions overflow menu" i]',
     'button[aria-label*="overflow menu" i]',
     'button[aria-label*="overflow" i]',
@@ -50,6 +51,16 @@ NOTE_TEXTAREA = (
 
 
 def _open_overflow_menu(page: Any, timeout_ms: int) -> bool:
+    # Prioritize the most stable data attribute selector
+    try:
+        btn = page.locator('button[data-x--lead-actions-bar-overflow-menu]').first
+        if btn.is_visible(timeout=3000):
+            if try_click(btn, force=False) or try_click(btn, force=True):
+                time.sleep(0.5)
+                return True
+    except Exception:
+        pass
+
     for sel in OVERFLOW_BUTTON_SELECTOR_CANDIDATES:
         try:
             loc = page.locator(sel)
@@ -59,7 +70,8 @@ def _open_overflow_menu(page: Any, timeout_ms: int) -> bool:
                 if not btn.is_visible(timeout=1500):
                     continue
                 al = (btn.get_attribute("aria-label") or "").lower()
-                if "message" in al and "more" not in al:
+                # Only filter out obvious Message buttons if they aren't the overflow
+                if "message" in al and "more" not in al and "overflow" not in al:
                     continue
                 if try_click(btn, force=False) or try_click(btn, force=True):
                     time.sleep(0.4)
@@ -205,7 +217,12 @@ def send_sales_nav_connection_request(
     def _run_connect_flow(page_inner: Any) -> dict[str, Any]:
         inner: dict[str, Any] = {"ok": False, "detail": "unknown", "profile_url": u}
         page_inner.goto(u, wait_until="domcontentloaded", timeout=timeout_ms)
-        # Removed networkidle wait as it frequently timeouts on LinkedIn
+        
+        # Wait for the overflow menu button to appear before proceeding
+        try:
+            page_inner.wait_for_selector('button[data-x--lead-actions-bar-overflow-menu]', timeout=10000)
+        except Exception:
+            pass
 
         if looks_like_linkedin_auth_wall(page_inner.url):
             inner["detail"] = (
