@@ -248,6 +248,6 @@ Posted Recently   → All Filters → Posted on LinkedIn (Spotlights)
 
 ## Related
 
-- **`linkedin`** skill: general LinkedIn browser patterns and login guidance.
+- **`linkedin-sales-nav-lead-actions`** skill: Playwright **`--action connect`** / **`inmail`** / **`save`** on a `/sales/lead/` URL (**`--openclaw`** / CDP); code in `skills/linkedin-sales-nav-lead-actions/scripts/linkedin_sales_nav/`; CLI: **`linkedin_sales_nav_cli.py`** (optional alias **`sales_nav_connect.py`**).
 - **`linkedin-message-browser`** skill: send DMs to leads found via this skill.
 - **`lead-sourcing`** skill: saving and organizing sourced leads after filtering.
