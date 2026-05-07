@@ -1,6 +1,6 @@
 # Standing Orders
 
-Programs below grant standing authority within stated boundaries. **Lead sourcing** lives in `skills/lead-sourcing/SKILL.md`; **lead qualification** in `skills/lead-qualification/SKILL.md`; **lead outreach** in `skills/lead-outreach/SKILL.md`; **lead conversation** (Sales Navigator inbox replies) in `skills/lead-conversation/SKILL.md`; **LinkedIn follow-up** in `skills/linkedin-follow-up/SKILL.md`; **email follow-up** in `skills/email-follow-up/SKILL.md`. This file stays the **scope / triggers / gates** layer; execution follows those references verbatim.
+Programs below grant standing authority within stated boundaries. **Lead sourcing** lives in `skills/lead-sourcing/SKILL.md`; **lead qualification** in `skills/lead-qualification/SKILL.md`; **lead outreach** in `skills/lead-outreach/SKILL.md` (includes **InMail credit read** and **weekday-only monthly pacing** before HubSpot fetch); **connection outreach** (same **`IN_PROGRESS`** queue shape; verify **accepted connection** on Sales Navigator; message via **free thread only** — **no InMail**; **`is_connected`** HubSpot flag) in `skills/connection-outreach/SKILL.md`; **lead conversation** (Sales Navigator inbox replies) in `skills/lead-conversation/SKILL.md`; **LinkedIn follow-up** in `skills/linkedin-follow-up/SKILL.md`; **email follow-up** in `skills/email-follow-up/SKILL.md`. This file stays the **scope / triggers / gates** layer; execution follows those references verbatim.
 
 ---
 
@@ -69,7 +69,7 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 - Do **not** run **lead sourcing** (saved search → new contacts) inside this program — that belongs to the Lead Sourcing program and `skills/lead-sourcing/SKILL.md`.
 - Do **not** skip **Step 3** (Sales Navigator profile + external website assessment) because Apollo returned data; Apollo is a cross-check, not a substitute for the browser steps.
 - Do **not** put the Sales Navigator lead URL into **`hs_linkedin_url`**; store the **public** `linkedin.com/in/...` profile URL there (Apollo expects that shape).
-- Do **not** send LinkedIn DMs, email campaigns, or other outreach here — that is the **Lead Outreach** program and `skills/lead-outreach/SKILL.md` after contacts are qualified and status allows pickup.
+- Do **not** send LinkedIn DMs, email campaigns, or other outreach here — that is the **Lead Outreach** program (`skills/lead-outreach/SKILL.md`) or **Connection Outreach** program (`skills/connection-outreach/SKILL.md`) after contacts are qualified and status allows pickup.
 
 ### Related automation
 
@@ -79,7 +79,7 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 
 ## Program: Lead Outreach (HubSpot → Sales Navigator message → HubSpot)
 
-**Authority:** Run the end-to-end **lead outreach** workflow only as defined in `skills/lead-outreach/SKILL.md` (lead-outreach skill): search HubSpot for **`hs_lead_status` = `IN_PROGRESS`** contacts with **`lead_score`** and **`linkedin_sales_lead_url`** (Sales Navigator lead page — **only** URL used to open and send; do not use public profile URLs for messaging), sort by **`lead_score` descending**, open each lead in Sales Navigator, send a **LinkedIn Message** (subject + body) pathway-aware per notes, **PATCH** contact status and `hs_content_membership_notes`, and report the summary table. Use the **hubspot** and **linkedin-sales-navigator** (browser) skills as specified there.
+**Authority:** Run the end-to-end **lead outreach** workflow only as defined in `skills/lead-outreach/SKILL.md` (lead-outreach skill): **first** read remaining **Sales Navigator InMail credits** in the browser (snapshot), compute **today’s send cap** from **`credits_remaining // working_days_remaining`** counting **weekdays only** (Monday–Friday) from **today** through month-end (see Step 0 in the skill); optionally verify math with `skills/lead-outreach/scripts/inmail_monthly_pacing.py`. Then search HubSpot for **`hs_lead_status` = `IN_PROGRESS`** contacts with **`lead_score`** and **`linkedin_sales_lead_url`** (Sales Navigator lead page — **only** URL used to open and send; do not use public profile URLs for messaging), **cap the HubSpot fetch** at that send budget, sort by **`lead_score` descending**, open each lead in Sales Navigator, send a **LinkedIn Message** (subject + body) pathway-aware per the skill, **PATCH** **`hs_lead_status`**, **`outreach_date`** (full datetime), and **`outreach_conversation`** (append sent copy), and report the summary table. Use the **hubspot** and **linkedin-sales-navigator** (browser) skills as specified there.
 
 **Trigger:**
 
@@ -91,23 +91,66 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 **Escalation (stop and ask or report clearly):**
 
 - LinkedIn Sales Navigator session missing, expired, or blocked; cannot open **`linkedin_sales_lead_url`** or the **Message** UI.
+- **InMail credits** cannot be read or are **zero** — do not exceed credits; stop outbound sends for this program until credits refresh or the owner overrides with explicit instruction.
 - Contact is **`IN_PROGRESS`** but missing **`linkedin_sales_lead_url`** — backfill via lead sourcing / qualification before outreach, or skip with a logged reason.
 - HubSpot search or **PATCH** returns persistent errors after one retry; log contact id + error, continue with remaining contacts if applicable, then summarize failures.
 - Send blocked (rate limits, existing thread, UI) — log reason, adjust PATCH per skill, continue.
-- Ambiguity about how many contacts to message in one run — default to what the owner specified; if unspecified, use the skill’s bounded batch (e.g. its default limit) and report.
+- Ambiguity about how many contacts to message in one run — default to what the owner specified; if unspecified, use **`sends_budget_today`** from Step 0 (InMail pacing); never exceed that budget in one run unless the owner explicitly overrides (e.g. month-end catch-up).
 
 ### Execution steps (summary)
 
-1. **Read and follow** `skills/lead-outreach/SKILL.md` for all steps (search → open Sales Nav lead URL → compose/send message → PATCH → close tabs → report).
-2. **Execute–Verify–Report:** After each send + PATCH, confirm HubSpot reflects the update; report the summary table with sent/updated status per row.
+1. **Read and follow** `skills/lead-outreach/SKILL.md` for **all** steps, including **Step 0** (InMail credits → weekday pacing → **`sends_budget_today`**).
+2. **Execute–Verify–Report:** After each send + PATCH, confirm HubSpot reflects **`outreach_date`**, appended **`outreach_conversation`**, and updated **`hs_lead_status`** per the skill; report credits read, working days remaining, budget used, and the summary table with sent/updated status per row.
 3. **Hygiene:** Close LinkedIn tabs as the skill requires after each contact or run.
 
 ### What NOT to do
 
 - Do **not** run **lead sourcing** or **lead qualification** here — use `skills/lead-sourcing/SKILL.md` and `skills/lead-qualification/SKILL.md` respectively.
 - Do **not** open **`linkedin_url`** or **`hs_linkedin_url`** to send messages in this program; use **`linkedin_sales_lead_url`** only.
+- Do **not** skip **Step 0** or message more leads in one run than **`sends_budget_today`** unless the owner explicitly overrides pacing.
 - Do **not** skip the HubSpot **PATCH** after a successful send (or document intentional skip with reason).
 - Do **not** run **Sales Navigator inbox replies** or process **unread inbound threads** here — that is the **Lead Conversation** program and `skills/lead-conversation/SKILL.md` (this program is **outbound** first contact from the queue).
+- Do **not** run **`skills/connection-outreach/SKILL.md`** here — that program verifies **accepted connection** and **`is_connected`** without **InMail** pacing; use **Connection Outreach** when the owner wants post-connection messaging only.
+
+### Related automation
+
+- Time-based runs: pair with [cron jobs](https://docs.openclaw.ai/automation/cron-jobs) whose prompt references this program by name and file path, per [Standing Orders](https://docs.openclaw.ai/automation/standing-orders) documentation.
+
+---
+
+## Program: Connection Outreach (HubSpot IN_PROGRESS → verify connection → Sales Navigator message → HubSpot)
+
+**Authority:** Run the end-to-end **connection outreach** workflow only as defined in `skills/connection-outreach/SKILL.md` (connection-outreach skill): search HubSpot for **`hs_lead_status` = `IN_PROGRESS`** contacts with **`lead_score`** and **`linkedin_sales_lead_url`** (same fetch shape as **`lead-outreach`**; Sales Navigator lead page **only** — do not use public profile URLs to open or send). Open each lead in Sales Navigator, **verify they accepted the connection** (**1st-degree** / connected UI — **not** pending invite, **not** InMail-only path). **Only** if connected, send a **LinkedIn Message** (subject + body when the UI requires it) pathway-aware per the skill — **no InMail credits**. Then **PATCH** **`hs_lead_status`**, **`outreach_date`** (full datetime), **`outreach_conversation`** (append sent copy), and **`is_connected`** = **`true`**. If **not** connected yet, **skip** send and **do not** set **`is_connected`** true. Use **bounded batch** sizing per the skill (there is **no** InMail pacing Step 0). Use the **hubspot** and **linkedin-sales-navigator** (browser) skills as specified there.
+
+**Trigger:**
+
+- **On-demand:** Whenever the owner asks to message **`IN_PROGRESS`** leads **after** connection acceptance only, avoid **InMail** spend, sync **`is_connected`** from Sales Navigator, or run the **post-connection** queue (distinct from **Lead Outreach** InMail pacing).
+- **Scheduled (optional):** If a cron job is added, its message should say only to execute **this program** per `standing-orders.md` / `skills/connection-outreach/SKILL.md` — do not duplicate the full workflow in the cron body.
+
+**Approval gate:** This program **sends outbound LinkedIn messages** when the connected path is confirmed (they leave the machine). Follow **`AGENTS.md`** red lines and the owner’s policy on outbound messages; obtain explicit approval when required before clicking **Send**. None beyond that for standard runs **inside** the skill if the owner has granted standing authority for this program.
+
+**Escalation (stop and ask or report clearly):**
+
+- LinkedIn Sales Navigator session missing, expired, or blocked; cannot open **`linkedin_sales_lead_url`** or read connection state from the profile chrome.
+- HubSpot missing **`is_connected`** property definition — create the boolean/checkbox property per the skill before PATCHing, or escalate.
+- Contact is **`IN_PROGRESS`** but missing **`linkedin_sales_lead_url`** — backfill via lead sourcing / qualification before outreach, or skip with a logged reason.
+- HubSpot search or **PATCH** returns persistent errors after one retry; log contact id + error, continue with remaining contacts if applicable, then summarize failures.
+- Send blocked (rate limits, UI, thread errors) — log reason; **do not** mark **`is_connected`** true or **`OPEN`** if send did not succeed, unless portal policy says otherwise.
+- Ambiguity about batch size — default to owner instruction; if unspecified, use the skill’s **small bounded batch**; **never** send via **InMail** inside this program.
+
+### Execution steps (summary)
+
+1. **Read and follow** `skills/connection-outreach/SKILL.md` for **all** steps (fetch → verify connection on Sales Nav → message only if connected → PATCH including **`is_connected`**).
+2. **Execute–Verify–Report:** After each verified-connected send + PATCH, confirm HubSpot reflects **`outreach_date`**, appended **`outreach_conversation`**, **`hs_lead_status`** per the skill, and **`is_connected`** = **`true`**; report skipped-not-connected rows and the summary table.
+3. **Hygiene:** Close LinkedIn tabs as the skill requires after each contact or run.
+
+### What NOT to do
+
+- Do **not** run **`skills/lead-outreach/SKILL.md`** here — that program reads **InMail credits** and weekday pacing; **this** program **never** consumes **InMail** and requires **accepted connection** first.
+- Do **not** open **`linkedin_url`** or **`hs_linkedin_url`** to send messages; use **`linkedin_sales_lead_url`** only.
+- Do **not** send when only **InMail** is available or connection is **pending** — skip until a later run.
+- Do **not** set **`is_connected`** **`true`** without verifying connected state on Sales Navigator (and generally without a successful send unless portal policy defines otherwise).
+- Do **not** skip HubSpot **PATCH** after a successful connected-path send (status, **`outreach_date`**, **`outreach_conversation`**, **`is_connected`**).
 
 ### Related automation
 
@@ -141,7 +184,7 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 
 ### What NOT to do
 
-- Do **not** run **lead sourcing**, **lead qualification**, or **cold outbound** first messages here — use `skills/lead-sourcing/SKILL.md`, `skills/lead-qualification/SKILL.md`, and `skills/lead-outreach/SKILL.md` respectively.
+- Do **not** run **lead sourcing**, **lead qualification**, or **`IN_PROGRESS`** outbound messaging here — use `skills/lead-sourcing/SKILL.md`, `skills/lead-qualification/SKILL.md`, and for outbound queue programs **`skills/lead-outreach/SKILL.md`** or **`skills/connection-outreach/SKILL.md`** per standing orders.
 - Do **not** send an in-thread reply **without** a HubSpot contact match on **`linkedin_sales_lead_url`** (skill gate).
 - Do **not** switch to **`linkedin.com/messaging`** instead of **Sales Navigator inbox** unless the owner’s workflow explicitly requires it (per skill).
 - Do **not** skip **PATCH** when the skill requires it (e.g. **`NOT_INTERESTED`**, **`MEETING_LINK_SENT`**, reply-handled notes).
@@ -179,7 +222,7 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 ### What NOT to do
 
 - Do **not** use public profile URLs (`linkedin_url`, `hs_linkedin_url`) to send; use **`linkedin_sales_lead_url`** only.
-- Do **not** run first-touch cold outreach here — that belongs to `skills/lead-outreach/SKILL.md`.
+- Do **not** run first-touch outreach from the **`IN_PROGRESS`** queue here — that belongs to **`skills/lead-outreach/SKILL.md`** (InMail-paced) or **`skills/connection-outreach/SKILL.md`** (post-connection).
 - Do **not** fabricate send confirmations or PATCH as sent when delivery fails.
 - Do **not** overwrite `outreach_conversation`; always append per the skill format.
 

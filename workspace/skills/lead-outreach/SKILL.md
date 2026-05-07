@@ -1,7 +1,8 @@
 ---
 name: lead-outreach
 description: >-
-  Run LinkedIn outreach only: search HubSpot for IN_PROGRESS contacts with lead_score and
+  Run LinkedIn outreach only: read remaining Sales Navigator InMail credits, cap sends using
+  remaining weekdays this month (Mon–Fri), search HubSpot for IN_PROGRESS contacts with lead_score and
   linkedin_sales_lead_url, sort by lead_score descending, open each Sales Navigator lead page
   (linkedin_sales_lead_url only — no public profile URLs for messaging), send a LinkedIn Message
   (subject + body), PATCH hs_lead_status, outreach_date (HubSpot datetime, full date+time of send),
@@ -16,7 +17,28 @@ metadata:
     emoji: 💬
 ---
 
-Use the `hubspot` skill and `linkedin-sales-navigator` skill together to **outreach only**: load contacts already qualified and queued, open their Sales Navigator profile, send a **LinkedIn Message** (subject + body), then update HubSpot.
+Use the `hubspot` skill and `linkedin-sales-navigator` skill together to **outreach only**: **pace by InMail credits** (working days left in the month), load contacts already qualified and queued, open their Sales Navigator profile, send a **LinkedIn Message** (subject + body), then update HubSpot.
+
+## Step 0 — InMail credits and daily send cap (working days only)
+
+**Before** fetching HubSpot contacts or opening lead tabs:
+
+1. **Read remaining InMail credits** in Sales Navigator (browser): open Sales Navigator (`linkedin-sales-navigator` skill), **snapshot** the chrome where LinkedIn surfaces monthly InMail allowance (often near compose / account or messaging entry points — wording like “InMail credits” or “credits remaining”). Record the integer **credits remaining**.
+2. **Compute today’s send budget** using **weekdays only** (Monday–Friday): count each weekday from **today** through the **last day of the current calendar month** (inclusive). Divide **`credits_remaining // working_days_remaining`** (integer division). That is the **maximum messages to send this run** (cap HubSpot fetch + sends at this number). **Re-run this step each session** with fresh credits so the budget tracks the rest of the month.
+
+**Python helper** (stdlib only): [`scripts/inmail_monthly_pacing.py`](scripts/inmail_monthly_pacing.py)
+
+- Import: `inmail_pacing_plan`, `working_days_remaining_in_month` — or run CLI:
+
+```bash
+python3 workspace/skills/lead-outreach/scripts/inmail_monthly_pacing.py --credits <N>
+```
+
+- Optional: `--date YYYY-MM-DD` to simulate another “today”; `--min-one` if `credits > 0` but floor division yields 0 (forces 1 send — may burn credits faster).
+
+Use **`plan.sends_budget_today`** as the cap. Do **not** exceed it unless the human overrides (e.g. month-end catch-up).
+
+---
 
 ## Step 1 — Fetch leads ready for outreach (IN_PROGRESS, highest `lead_score` first)
 
@@ -70,6 +92,8 @@ Content-Type: application/json
   "after": "0"
 }
 ```
+
+Set **`limit`** to **`sends_budget_today`** from Step 0 (example above uses `5` only as shape). Do not fetch more contacts than you will message this run.
 
 **Sort:** Use descending **`lead_score`** first with the object-form sort shown above. If your HubSpot API rejects that sort shape, fetch the batch without a server sort and **re-order results client-side** so the highest numeric **`lead_score`** is messaged first.
 

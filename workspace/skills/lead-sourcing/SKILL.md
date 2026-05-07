@@ -41,9 +41,9 @@ Collect the lead from the results.
    - Last Name
    - Company Name
    - Job Title / Role
-   - **LinkedIn profile URL** — public member URL (`https://www.linkedin.com/in/...`) from “View in LinkedIn” or the profile’s public link. Used for **Apollo** enrichment (`apollo.py enrich --linkedin`).
+   - **Email and phone** — Open **Contact information** on the Sales Navigator lead profile (every lead has this section/panel). Check whether they **listed** an **email** and/or **phone**—typically separate rows with icons (e.g. envelope vs handset)—and copy only real values. If a row is empty, shows **Add contact info**, or is not a usable address/number, treat that field as not found. Email can rarely appear elsewhere on the profile or in visible activity; capture it if so.
+   - **LinkedIn profile URL** — public member URL (`https://www.linkedin.com/in/...`). On the Sales Navigator lead profile, beside **Message**, open the **⋯ (three-dot) overflow menu**, then choose **Copy LinkedIn.com URL** from the dropdown; paste to capture the link. Alternatives: **View LinkedIn profile** (then copy from the browser bar) or **View in LinkedIn** / the profile’s public link if you already have it. Used for **Apollo** enrichment (`apollo.py enrich --linkedin`).
    - **LinkedIn Sales Navigator lead URL** — full URL from the browser address bar while on the **Sales Navigator** lead profile (e.g. `https://www.linkedin.com/sales/lead/...`). Used to reopen this lead in Sales Navigator later (search, save, outreach).
-   - Email (if visible on their profile or activity)
    - Recent activity / posts (note any relevant topics they've posted about)
    - Years of experience / seniority signals
    - Any mutual connections or shared interests
@@ -68,7 +68,7 @@ python3 workspace/skills/linkedin-sales-nav-lead-actions/scripts/linkedin_sales_
 
 (`--list-name` defaults to **Agent's Lead List**; pass it explicitly if you use another list.)
 
-2. **If the script fails** (e.g. `ok: false`, timeout, or broken selectors): fall back to the **`linkedin-sales-navigator`** browser flow — open the lead profile, click **Save**, and choose **Agent's Lead List**.
+2. **If the script fails** (e.g. `ok: false`, timeout, or broken selectors): fall back to the **`linkedin-sales-navigator`** browser flow — open the lead profile, click **Save** button, and choose **Agent's Lead List**.
 
 ### 2b — Connection request (after save)
 
@@ -99,6 +99,7 @@ For each lead collected, create a contact in HubSpot using the `hubspot` skill w
 | LinkedIn profile URL (`linkedin.com/in/...`)             | `hs_linkedin_url` — **primary for Apollo** (`--linkedin`). |
 | Sales Navigator lead URL (`linkedin.com/sales/lead/...`) | `linkedin_sales_lead_url`  |
 | Email                                                    | `email` (leave blank if not found)                                                                                                   |
+| Phone                                                    | `phone` (leave blank if not found)                                                                                                   |
 | —                                                        | `hs_lead_status` → `NEW`                                                                                                             |
 
 Do **not** set `hs_lead_grade` or qualification notes here — the qualification workflow fills those after Apollo + scoring.
@@ -118,6 +119,7 @@ Authorization: Bearer $HUBSPOT_ACCESS_TOKEN
     "hs_linkedin_url": "<LinkedIn Public profile URL>",
     "linkedin_sales_lead_url": "<Sales Navigator lead URL from address bar>",
     "email": "<Email or omit if not found>",
+    "phone": "<Phone or omit if not found>",
     "hs_lead_status": "NEW"
   }
 }
@@ -130,7 +132,7 @@ Authorization: Bearer $HUBSPOT_ACCESS_TOKEN
 
 After all leads are pushed, show a summary table with:
 
-- Lead name, company, role, **profile URL** (`hs_linkedin_url`), **Sales Navigator lead URL**, email (or "N/A"), HubSpot contact ID returned from the API
+- Lead name, company, role, **profile URL** (`hs_linkedin_url`), **Sales Navigator lead URL**, email (or "N/A"), phone (or "N/A"), HubSpot contact ID returned from the API
 
 If any contact creation fails (e.g. duplicate email), note the error and continue with the next lead.
 
