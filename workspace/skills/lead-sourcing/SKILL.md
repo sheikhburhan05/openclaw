@@ -3,18 +3,18 @@ name: lead-sourcing
 description: >-
   Run the Sales Navigator → HubSpot sourcing workflow: open a filtered people search, extract
   identity fields plus both LinkedIn URLs (public profile for Apollo, Sales Navigator lead URL),
-  save leads to Agent's Lead List, and create HubSpot contacts with hs_lead_status NEW—without
+  save leads to Agent's Lead List and send connection requests, and create HubSpot contacts with hs_lead_status NEW—without
   scoring or qualification (those live in the lead-qualification prompt). Use when the user
   wants to source leads, push Sales Nav prospects into CRM, run get-leads, or fill the top of
-  the funnel before Apollo/qualification. Requires linkedin-sales-navigator (browser) and
-  hubspot skills.
+  the funnel before Apollo/qualification. Requires linkedin-sales-nav-lead-actions (save + connect
+  via CLI) with linkedin-sales-navigator (browser fallback) and hubspot skills.
 
 metadata:
   openclaw:
     emoji: 🎯
 ---
 
-Use the `linkedin-sales-navigator` skill and `hubspot` skill together to **source leads** into HubSpot (identity + URLs + basics). **Scoring and qualification** happen in
+Use **`linkedin-sales-nav-lead-actions`** (save + connect CLI), **`linkedin-sales-navigator`** (browser for search and CLI fallback), and **`hubspot`** together to **source leads** into HubSpot (identity + URLs + basics). **Scoring and qualification** happen in the lead-qualification workflow, not in this skill.
 
 ## Step 1 — Fetch leads from LinkedIn Sales Navigator
 
@@ -51,13 +51,38 @@ Collect the lead from the results.
 
 3. Close the profile tab once extraction is complete, and return to the search results to move on to the next lead.
 
-## Step 2 — Save each lead to Agent's Lead List in Sales Navigator
+## Step 2 — Save each lead to Agent's Lead List, then send a connection request
 
-Before pushing to HubSpot, for each lead collected:
+Before pushing to HubSpot, for each lead collected, use the **`linkedin-sales-nav-lead-actions`** skill and the Sales Navigator **lead URL** you captured (`https://www.linkedin.com/sales/lead/...`). Prefer **`--openclaw`** so the script attaches to the same browser session as the rest of the workflow (`openclaw browser --browser-profile openclaw start` / `status` if needed). Full CLI reference: [`workspace/skills/linkedin-sales-nav-lead-actions/SKILL.md`](../linkedin-sales-nav-lead-actions/SKILL.md).
 
-1. Open the lead's LinkedIn Sales Navigator profile.
-2. Click the **Save** button on their profile to save them as a lead.
-3. When prompted to select a list, choose **Agent's Lead List**.
+### 2a — Save to list (script first, browser if needed)
+
+1. **Preferred:** run the save action:
+
+```bash
+python3 workspace/skills/linkedin-sales-nav-lead-actions/scripts/linkedin_sales_nav_cli.py \
+  --openclaw \
+  --action save \
+  --profile-url '<Sales Navigator lead URL>'
+```
+
+(`--list-name` defaults to **Agent's Lead List**; pass it explicitly if you use another list.)
+
+2. **If the script fails** (e.g. `ok: false`, timeout, or broken selectors): fall back to the **`linkedin-sales-navigator`** browser flow — open the lead profile, click **Save**, and choose **Agent's Lead List**.
+
+### 2b — Connection request (after save)
+
+Once the lead is on the list, send the connection request with the **same** `--profile-url`:
+
+```bash
+python3 workspace/skills/linkedin-sales-nav-lead-actions/scripts/linkedin_sales_nav_cli.py \
+  --openclaw \
+  --action connect \
+  --profile-url '<Sales Navigator lead URL>' \
+  --note "Optional invitation note."
+```
+
+If connect fails after a successful save, use browser automation (**⋯** next to Message → **Connect**) as a last resort, per **`linkedin-sales-nav-lead-actions`**.
 
 This ensures every processed lead is tracked in Sales Navigator and excluded from future searches (preventing duplicates via the `LEAD_LIST` exclusion filter in the URL).
 
