@@ -50,7 +50,11 @@ Collect the lead from the results.
    - Any mutual connections or shared interests
    - **Company website URL** (if shown on profile or company card) — optional capture for downstream qualification; no scoring or site “quality” judgment here.
 
-3. **Sourcing disqualification** — Before any save/connect or HubSpot step, evaluate the lead against the checks below using headline, About, company name/description, posts, services, and any visible positioning. **If any disqualifier clearly applies, do not push this lead to HubSpot.** Also **do not** save to the list or send a connection request (skip Step 2) unless you deliberately want them excluded from future Sales Nav searches only—in that narrow case you may **save-only** to Agent's Lead List with **no** connect and **no** HubSpot; default is skip Step 2 and Step 3 entirely and return to results.
+3. **Sourcing disqualification** — Before any connect or HubSpot step, evaluate the lead against the checks below using headline, About, company name/description, posts, services, and any visible positioning. **If any disqualifier clearly applies:**
+   - **Save to Agent's Lead List** (Step 2a, save-only) so the lead is excluded from all future searches via the `LEAD_LIST` exclusion filter — this prevents the same disqualified profile from surfacing again.
+   - Do **not** send a connection request.
+   - Do **not** push to HubSpot.
+   - Note the lead in the run summary under "Skipped at sourcing" with a one-line reason, then return to results.
 
 ### Disqualification (sourcing gate)
 
@@ -83,9 +87,11 @@ Disqualify (no HubSpot; skip connect) if the profile or company aligns with wron
 
 ## Step 2 — Save each lead to Agent's Lead List, then send a connection request
 
-For **qualified** leads only (passed sourcing disqualification in Step 1). Before pushing to HubSpot, for each lead, use the **`linkedin-sales-nav-lead-actions`** skill and the Sales Navigator **lead URL** you captured (`https://www.linkedin.com/sales/lead/...`). Prefer **`--openclaw`** so the script attaches to the same browser session as the rest of the workflow (`openclaw browser --browser-profile openclaw start` / `status` if needed). Full CLI reference: [`workspace/skills/linkedin-sales-nav-lead-actions/SKILL.md`](../linkedin-sales-nav-lead-actions/SKILL.md).
+Use the **`linkedin-sales-nav-lead-actions`** skill and the Sales Navigator **lead URL** you captured (`https://www.linkedin.com/sales/lead/...`). Full CLI reference: [`workspace/skills/linkedin-sales-nav-lead-actions/SKILL.md`](../linkedin-sales-nav-lead-actions/SKILL.md).
 
-### 2a — Save to list (script first, browser if needed)
+### 2a — Save to list (every lead — qualified and disqualified)
+
+**All leads** processed in Step 1 — regardless of disqualification outcome — must be saved to **Agent's Lead List**. This is what drives the `LEAD_LIST` exclusion filter in the search URL and prevents the same profile from reappearing in future runs.
 
 1. **Preferred:** run the save action:
 
@@ -100,19 +106,31 @@ python3 workspace/skills/linkedin-sales-nav-lead-actions/scripts/linkedin_sales_
 
 2. **If the script fails** (e.g. `ok: false`, timeout, or broken selectors): fall back to the **`linkedin-sales-navigator`** browser flow — open the lead profile, click **Save** button, and choose **Agent's Lead List**.
 
-### 2b — Connection request (after save)
+**After saving a disqualified lead, stop here** — do not proceed to Step 2b or Step 3. Return to search results for the next lead.
 
-Once the lead is on the list, send the connection request with the **same** `--profile-url`:
+### 2b — Connection request (qualified leads only, after save)
+
+**Pick the outreach account (round-robin):**
+
+1. Read `workspace/state/outreach_account.json`. If the file is missing or unreadable, treat `last_used` as `openclaw-2`.
+2. Toggle: if `last_used` is `openclaw`, set `active_account = openclaw-2`; if it is `openclaw-2` (or anything else), set `active_account = openclaw`.
+3. **Update state file** — write `{"last_used": "<active_account>"}` back to `workspace/state/outreach_account.json` immediately, before sending the connection request, so the slot is consumed even if the connect step fails.
+4. Send the connection request using `--browser-profile <active_account>`.
+5. Carry `active_account` forward to Step 3 for HubSpot.
+
+Use browser profile `<active_account>` (`openclaw` or `openclaw-2`) for the connection request.
 
 ```bash
+# <active_account> is the round-robin result from above (openclaw or openclaw-2).
+# Default to openclaw if undetermined.
 python3 workspace/skills/linkedin-sales-nav-lead-actions/scripts/linkedin_sales_nav_cli.py \
-  --openclaw \
+  --browser-profile <active_account> \
   --action connect \
   --profile-url '<Sales Navigator lead URL>' \
   --note "Optional invitation note."
 ```
 
-If connect fails after a successful save, use browser automation (**⋯** next to Message → **Connect**) as a last resort, per **`linkedin-sales-nav-lead-actions`**.
+If connect fails after a successful save, use browser automation (`openclaw browser --browser-profile <active_account>` → **⋯** next to Message → **Connect**) as a last resort, per **`linkedin-sales-nav-lead-actions`**.
 
 This ensures every **qualified** processed lead is tracked in Sales Navigator and excluded from future searches (preventing duplicates via the `LEAD_LIST` exclusion filter in the URL).
 
@@ -131,6 +149,7 @@ For each **qualified** lead only (passed sourcing disqualification; never create
 | Email                                                    | `email` (leave blank if not found)                                                                                                   |
 | Phone                                                    | `phone` (leave blank if not found)                                                                                                   |
 | —                                                        | `hs_lead_status` → `NEW`                                                                                                             |
+| `active_account` from Step 2b                            | `outreach_account` — browser profile used to send the connection request (`openclaw` or `openclaw-2`); all downstream outreach skills route back to the same LinkedIn account using this value |
 
 Do **not** set `hs_lead_grade` or qualification notes here — the qualification workflow fills those after Apollo + scoring.
 
@@ -150,10 +169,13 @@ Authorization: Bearer $HUBSPOT_ACCESS_TOKEN
     "linkedin_sales_lead_url": "<Sales Navigator lead URL from address bar>",
     "email": "<Email or omit if not found>",
     "phone": "<Phone or omit if not found>",
-    "hs_lead_status": "NEW"
+    "hs_lead_status": "NEW",
+    "outreach_account": "<active_account from Step 2b — openclaw or openclaw-2>"
   }
 }
 ```
+
+**Ensure the `outreach_account` HubSpot property exists** (single-line text) before the first run — create it in HubSpot Settings → Properties → Contact properties if not already present.
 
 **URL rules:** `hs_linkedin_url` must be the public profile link. `linkedin_sales_lead_url` must be the **Sales Navigator** page URL only — never put the SN URL into `hs_linkedin_url` (Apollo expects a normal `linkedin.com/in/...` or equivalent member URL).
 

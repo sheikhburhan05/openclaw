@@ -79,7 +79,8 @@ Content-Type: application/json
     "lead_score",
     "outreach_conversation",
     "outreach_date",
-    "hs_lead_status"
+    "hs_lead_status",
+    "outreach_account"
   ],
   "sorts": [
     {
@@ -104,9 +105,11 @@ Read **`outreach_conversation`** when present so appended outreach entries stay 
 
 ## Step 2 — Open each lead's LinkedIn Sales Navigator profile
 
+**Browser profile routing:** Before opening any tabs, read **`outreach_account`** from the contact's HubSpot record and use that as the browser profile (`openclaw browser --browser-profile <outreach_account>`). If **`outreach_account`** is missing or empty, default to **`openclaw`**. Also use this same profile when reading InMail credits in Step 0 — credits are per-account (each profile is a separate LinkedIn seat). If the batch contains leads from both accounts, read credits from each account separately and apply the budget per-account.
+
 For each contact:
 
-1. Open **`linkedin_sales_lead_url`** in a new tab (Sales Navigator lead page — **only** URL used for **Message** in this workflow). Do **not** open `linkedin_url` or `hs_linkedin_url` for sending.
+1. Open **`linkedin_sales_lead_url`** in a new tab using the resolved browser profile above (Sales Navigator lead page — **only** URL used for **Message** in this workflow). Do **not** open `linkedin_url` or `hs_linkedin_url` for sending.
 2. Wait for the profile to load.
 3. Skim headline, about, recent activity to infer **industry / vertical** and **pathway** (agency vs business owner) — enough to pick the right opening question, not a full brief.
 

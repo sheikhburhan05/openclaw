@@ -23,9 +23,10 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 
 ### Execution steps (summary)
 
-1. **Read and follow** `skills/lead-sourcing/SKILL.md` for Steps 1–4 (Sales Nav → save to list → HubSpot create contact → report and close tabs).
-2. **Execute–Verify–Report:** After each push, confirm the API response includes a contact id where success; verify summary table fields match what was sent; report failures with diagnosis, no silent drops.
-3. **Hygiene:** Close browser tabs as the skill requires after the summary.
+1. **Read and follow** `skills/lead-sourcing/SKILL.md` for Steps 1–5 (Sales Nav → save to list → round-robin account → HubSpot create contact → report and close tabs).
+2. **Round-robin account selection (Step 2b):** For every qualified lead, read `workspace/state/outreach_account.json`, toggle to the opposite account (`openclaw` ↔ `openclaw-2`), **write the new `last_used` back to the state file immediately** (before the connect request), then send the connection request using that browser profile. Store the chosen account as `outreach_account` in HubSpot alongside the contact.
+3. **Execute–Verify–Report:** After each push, confirm the API response includes a contact id where success; verify summary table fields match what was sent; report failures with diagnosis, no silent drops.
+4. **Hygiene:** Close browser tabs as the skill requires after the summary.
 
 ### What NOT to do
 
@@ -33,6 +34,7 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 - Do **not** put the Sales Navigator lead URL into **`hs_linkedin_url`**; Apollo expects the public profile URL only.
 - Do **not** skip saving leads to **Agent's Lead List** before or as part of HubSpot push — that maintains the exclusion filter and avoids duplicates.
 - Do **not** acknowledge “sourced” without completed HubSpot creates (or documented skips/errors) and the closing summary table.
+- Do **not** skip the state file write in Step 2b — the round-robin breaks if `workspace/state/outreach_account.json` is not updated every run.
 
 ### Related automation
 

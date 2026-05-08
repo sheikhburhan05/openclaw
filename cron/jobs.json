@@ -8,9 +8,8 @@
       "enabled": false,
       "createdAtMs": 1776423233124,
       "schedule": {
-        "kind": "every",
-        "everyMs": 1800000,
-        "anchorMs": 1777880279438
+        "kind": "cron",
+        "expr": "*/30 * * * 1-5"
       },
       "sessionTarget": "session:sales-agent-sourcing",
       "wakeMode": "next-heartbeat",
@@ -35,9 +34,8 @@
       "deleteAfterRun": false,
       "createdAtMs": 1776668792937,
       "schedule": {
-        "kind": "every",
-        "everyMs": 1800000,
-        "anchorMs": 1778223850654
+        "kind": "cron",
+        "expr": "*/30 * * * 1-5"
       },
       "sessionTarget": "session:sales-agent-qualification",
       "wakeMode": "next-heartbeat",
@@ -60,9 +58,8 @@
       "deleteAfterRun": false,
       "createdAtMs": 1776674210893,
       "schedule": {
-        "kind": "every",
-        "everyMs": 1800000,
-        "anchorMs": 1777880299442
+        "kind": "cron",
+        "expr": "0 14 * * *"
       },
       "sessionTarget": "session:sales-agent-outreach",
       "wakeMode": "next-heartbeat",
@@ -85,9 +82,8 @@
       "deleteAfterRun": false,
       "createdAtMs": 1776840235443,
       "schedule": {
-        "kind": "every",
-        "everyMs": 1800000,
-        "anchorMs": 1777531569107
+        "kind": "cron",
+        "expr": "*/30 * * * 1-5"
       },
       "sessionTarget": "session:sales-agent-conversation",
       "wakeMode": "next-heartbeat",
@@ -111,9 +107,8 @@
       "deleteAfterRun": false,
       "createdAtMs": 1777003200000,
       "schedule": {
-        "kind": "every",
-        "everyMs": 3600000,
-        "anchorMs": 1777893551057
+        "kind": "cron",
+        "expr": "*/30 * * * 1-5"
       },
       "sessionTarget": "session:sales-agent-linkedin-follow-up",
       "wakeMode": "next-heartbeat",
@@ -135,9 +130,8 @@
       "deleteAfterRun": false,
       "createdAtMs": 1777003260000,
       "schedule": {
-        "kind": "every",
-        "everyMs": 1800000,
-        "anchorMs": 1777532708662
+        "kind": "cron",
+        "expr": "*/30 * * * 1-5"
       },
       "sessionTarget": "session:sales-agent-email-followup",
       "wakeMode": "next-heartbeat",
@@ -191,6 +185,28 @@
         "kind": "agentTurn",
         "message": "__openclaw_memory_core_short_term_promotion_dream__",
         "lightContext": true
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {}
+    },
+    {
+      "id": "9e533a8b-813b-4a34-819f-f164626a8ff6",
+      "agentId": "main",
+      "name": "Connection-Outreach",
+      "enabled": false,
+      "deleteAfterRun": false,
+      "createdAtMs": 1778232692623,
+      "schedule": {
+        "kind": "cron",
+        "expr": "*/30 * * * 1-5"
+      },
+      "sessionTarget": "session:sales-agent-connection-outreach",
+      "wakeMode": "next-heartbeat",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute the end-to-end connection outreach workflow as per standing instructions. Retrieve 1 lead and perform LinkedIn Sales connection outreach for the lead.\n\nBefore sending the outreach message, first check whether the lead has accepted the connection request. If the connection request is still pending or not accepted, skip that lead and do not send the outreach message."
       },
       "delivery": {
         "mode": "none"

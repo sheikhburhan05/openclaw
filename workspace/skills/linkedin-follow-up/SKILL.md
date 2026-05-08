@@ -26,7 +26,7 @@ Use the **`hubspot`** skill and **`linkedin-sales-navigator`** skill together: f
 **HubSpot search (pattern — adjust `crm/objects/.../contacts` path and token to your portal):**
 
 - Combine filters so all eligibility conditions are met: `hs_lead_status` **EQ** `OPEN`, `outreach_date` **LT** `<cutoff_iso>` (e.g. if now is `2026-04-21T12:00:00.000Z`, cutoff is `2026-04-19T12:00:00.000Z`), `linkedin_sales_lead_url` **HAS_PROPERTY**, and **(`linkedin_follow_up_sent` is false OR `linkedin_follow_up_sent` has no value)**.
-- Request properties: e.g. `firstname`, `lastname`, `company`, `jobtitle`, `linkedin_sales_lead_url`, `lead_score`, `outreach_conversation`, `outreach_date`, `hs_lead_status`, `hs_content_membership_notes` (or notes fields your portal uses for pathway).
+- Request properties: e.g. `firstname`, `lastname`, `company`, `jobtitle`, `linkedin_sales_lead_url`, `lead_score`, `outreach_conversation`, `outreach_date`, `hs_lead_status`, `outreach_account`, `hs_content_membership_notes` (or notes fields your portal uses for pathway).
 - **Sort** by **`outreach_date` ascending** (oldest last-touch first) if the API allows; otherwise sort client-side so the longest-waiting leads are first.
 - **Limit** per run: use a **small bounded batch** (e.g. 5-15) unless the owner specifies otherwise.
 
@@ -36,9 +36,11 @@ Read **`outreach_conversation` in full** so the follow-up does not repeat the sa
 
 ## Step 2 — Open the lead in Sales Navigator
 
+**Browser profile routing:** Before opening any tabs, read **`outreach_account`** from the contact's HubSpot record and use that as the browser profile (`openclaw browser --browser-profile <outreach_account>`). If **`outreach_account`** is missing or empty, default to **`openclaw`**.
+
 For each selected contact:
 
-1. Open **`linkedin_sales_lead_url`** (Sales Navigator lead page). Do **not** use `linkedin_url` or `hs_linkedin_url` to send.
+1. Open **`linkedin_sales_lead_url`** using the resolved browser profile above (Sales Navigator lead page). Do **not** use `linkedin_url` or `hs_linkedin_url` to send.
 2. Wait for the page; skim headline/about if needed to keep **industry / vertical** and **pathway** (Agency vs Business Owner) aligned with notes.
 3. Click the **Message** button on the profile page — the message thread panel opens on screen. If a thread already exists, scroll/read enough of it to see **your prior outbound** so the follow-up is a natural bump, not a duplicate first cold message.
 

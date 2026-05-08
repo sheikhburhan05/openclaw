@@ -74,7 +74,8 @@ Content-Type: application/json
     "outreach_conversation",
     "outreach_date",
     "hs_lead_status",
-    "is_connected"
+    "is_connected",
+    "outreach_account"
   ],
   "sorts": [
     {
@@ -99,6 +100,8 @@ Read **`outreach_conversation`** when present so appended outreach entries stay 
 
 ## Step 2 — Open each lead's Sales Navigator profile, verify connection, then skim for messaging
 
+**Browser profile routing:** Before opening any tabs, read **`outreach_account`** from the contact's HubSpot record and use that as the browser profile (`openclaw browser --browser-profile <outreach_account>`). If **`outreach_account`** is missing or empty, default to **`openclaw`**. All tabs opened for this lead must use that same profile's browser session.
+
 For each contact (**after** skipping **`is_connected`** already **`true`**):
 
 1. Open **`linkedin_sales_lead_url`** in a new tab (Sales Navigator lead page — **only** URL used for **Message** in this workflow). Do **not** open `linkedin_url` or `hs_linkedin_url` for sending.
@@ -106,7 +109,19 @@ For each contact (**after** skipping **`is_connected`** already **`true`**):
 
 **Verification — treat as "connected / accepted" only if** the UI clearly indicates **1st-degree** (or equivalent **Connected** / **1st** relationship badge on Sales Navigator / lead sidebar) **and** you can open a **standard message thread** that does **not** require consuming **InMail** (no **InMail** send path as the **only** option).
 
-**Verification — treat as "not connected yet" if** you see **Pending invitation**, **Connect** as the primary action, **2nd** / **3rd+** only without a free **Message** path, or only **InMail**. **Stop** for this contact: **do not** send a message; **do not** PATCH **`is_connected`** true; leave **`hs_lead_status`** unchanged. Optionally log "pending / not 1st" and continue.
+**Verification — treat as "not connected yet" if** you see **Pending invitation**, **Connect** as the primary action, **2nd** / **3rd+** only without a free **Message** path, or only **InMail**.
+
+- If status is **Pending** (invitation already sent) — skip messaging; leave `hs_lead_status` unchanged; log "pending — awaiting acceptance" and continue to the next lead.
+- If status is **not connected and no invite sent** (Connect is the primary action) — send a connection request now using the same `outreach_account` browser profile, then skip messaging for this run:
+
+```bash
+python3 workspace/skills/linkedin-sales-nav-lead-actions/scripts/linkedin_sales_nav_cli.py \
+  --browser-profile <outreach_account or openclaw if not set> \
+  --action connect \
+  --profile-url '<linkedin_sales_lead_url>'
+```
+
+After sending the request, log "connection request sent" and continue to the next lead. Do **not** PATCH `is_connected` true; leave `hs_lead_status` unchanged.
 
 3. If connected, skim headline, about, recent activity to infer **industry / vertical** and **pathway** (agency vs business owner) — enough to pick the right opening question.
 
@@ -183,7 +198,7 @@ If you prefer to keep **`IN_PROGRESS`** until a reply, document that in your por
 1. Close all LinkedIn tabs opened for this run.
 2. Summary table:
 
-| Lead | Company | Score (`lead_score`) | Industry (inferred) | Pathway (inferred) | Connected (verified) | Sent | `outreach_date` | `is_connected` | HubSpot updated |
-|------|---------|----------------------|---------------------|----------------------|----------------------|------|-----------------|----------------|-----------------|
+| Lead | Company | Score (`lead_score`) | Connected (verified) | Action taken | `outreach_date` | `is_connected` | HubSpot updated |
+|------|---------|----------------------|----------------------|--------------|-----------------|----------------|-----------------|
 
-Rows **skipped** as not yet connected should show Connected = No / Pending and Sent = No.
+Possible values for **Action taken**: `Message sent` / `Connection request sent (awaiting acceptance)` / `Pending — skipped`.
