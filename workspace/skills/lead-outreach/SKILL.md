@@ -127,11 +127,34 @@ Key constraints for this step:
 
 **Send steps (match Sales Navigator UI)**
 
-1. On the profile, click **Message**.
-2. In the compose panel, fill **Subject (required)**.
-3. Fill the **message body**.
-4. Click **Send**.
-5. Confirm send; then close the profile tab.
+> ⚠️ **Ref-stability warning:** Sales Navigator refs expire between tool calls. Always re-snapshot after each action before referencing a new element. Never reuse a ref from a prior snapshot.
+
+1. **Click Message button** — snapshot the profile page, find `button "Message {name}"`, click it.
+2. **Re-snapshot** after the compose panel opens to get fresh refs for the Subject and body fields.
+3. **Fill Subject** — find `textbox "Subject (required)"` in the snapshot, use `act: type` with that ref.
+4. **Fill message body** — the body textarea ref often goes stale before you can click it. Use `evaluate` instead:
+
+   ```js
+   // Inject the full message body directly into the textarea via JS
+   () => {
+     const ta = document.querySelector('textarea[name="message"]');
+     if (ta) {
+       ta.focus();
+       ta.value = 'Hey {name},\n\n{body}';
+       ta.dispatchEvent(new Event('input', { bubbles: true }));
+       ta.dispatchEvent(new Event('change', { bubbles: true }));
+       return 'done: ' + ta.value.slice(0, 30);
+     }
+     return 'not found';
+   }
+   ```
+
+   Verify the return value starts with your message. If it returns `'not found'`, the compose panel may not be fully loaded — wait briefly and retry.
+
+5. **Re-snapshot** to confirm the body is populated and the Send button is no longer `[disabled]`.
+6. **Click Send** using the fresh Send button ref from the re-snapshot.
+7. **Confirm send** — the thread view should appear showing the sent message with a timestamp. Credits counter drops by 1.
+8. Close the profile tab.
 
 **Body shape**
 

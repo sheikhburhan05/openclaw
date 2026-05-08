@@ -100,13 +100,6 @@ Examples:
 Docs: docs.openclaw.ai/cli/browser
 ```
 
-
-### LinkedIn Sales Navigator — Compose box
-- The message textarea `ref` is typically `e41` (changes after page reloads — always re-snapshot to get fresh refs)
-- `type <ref> "<text>"` works on the Sales Navigator textarea (it's a `<textarea>`, not a contenteditable div)
-- Send button `ref` appears after text is typed; it is `[disabled]` when empty
-- Sequence: `click <textbox-ref>` → `type <textbox-ref> "<msg>"` → snapshot to confirm → `click <send-ref>`
-
 ---
 
 Add whatever helps you do your job. This is your cheat sheet.
