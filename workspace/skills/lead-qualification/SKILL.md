@@ -3,26 +3,82 @@ name: lead-qualification
 description: >-
   Run the HubSpot → Apollo → Sales Navigator qualification workflow: search for NEW contacts with
   a LinkedIn URL, enrich with Apollo (person + organization), complete mandatory Sales Navigator
-  profile review and website visits (Speed, mobile, SEO, e-commerce, aesthetic), classify Agency / Business Owner / Disqualified, score with
-  the correct model, persist lead_score and lead_score_details (full reasoning + audit context) via
-  HubSpot PATCH, and
-  report the summary table. Use when the user wants to qualify leads, score NEW contacts, or move
-  sourced contacts toward outreach. Requires hubspot, apollo-enrichment (apollo.py), and
-  linkedin-sales-navigator (browser); active Sales Navigator session for Step 3.
+  profile review and website visits, classify Agency / Business Owner / Disqualified using ICP and
+  disqualification rules (operational-infrastructure fit—not AI positioning), score with the
+  Agency (white label) or Business Owner (direct subscription) model (industry priority, geography,
+  headcount 3–20 ideal, founder proximity, operational pain, revenue, maturity/clarity, responsiveness),
+  persist lead_score and lead_score_details via HubSpot PATCH, and report. Use when the user wants
+  to qualify leads, score NEW contacts, or move sourced contacts toward outreach. Requires hubspot,
+  apollo-enrichment (apollo.py), and linkedin-sales-navigator (browser); active Sales Navigator session
+  for Step 3.
 
 metadata:
   openclaw:
     emoji: 📋
 ---
-Use the `hubspot` skill, `apollo-enrichment` skill (`workspace/skills/apollo-enrichment/apollo.py` per [SKILL.md](../skills/apollo-enrichment/SKILL.md)), and `linkedin-sales-navigator` (browser — required for Step 3) to **qualify leads**: classify type, enrich with Apollo (person + organization), **backfill missing HubSpot contact and company data from Apollo**, score with the correct model, and persist everything in HubSpot.
+
+Use the `hubspot` skill, `apollo-enrichment` skill (`workspace/skills/apollo-enrichment/apollo.py` per [SKILL.md](../apollo-enrichment/SKILL.md)), and `linkedin-sales-navigator` (browser — required for Step 3) to **qualify leads**: classify type against ICP, enrich with Apollo (person + organization), **backfill missing HubSpot contact and company data from Apollo**, score with the correct model, and persist everything in HubSpot.
+
+## Positioning and ICP (read before scoring)
+
+**What you are selling:** Operational infrastructure for growing businesses—lead flow, follow-up, backend ops, communication, onboarding, operational support. **Do not** position or score as “an AI company”; AI-heavy positioning on the **lead’s** side is usually a **negative** signal.
+
+**Ideal client**
+
+- Founder-led, small team, operationally busy, growing quickly  
+- Still handles too much manually; inconsistent systems; operational bottlenecks; weak backend infrastructure  
+- **Sweet spot:** growth has outpaced operations  
+
+**Ideal headcount band:** **3–20 employees** (scoring rewards this band highest).
+
+**Strong-fit behaviors**
+
+- Decisions quickly; founders still involved day-to-day  
+- Reliant on referrals/leads; operational chaos behind growth; inconsistent follow-up; admin-heavy  
+- Weak CRM/processes; already generating revenue; needs **structure more than strategy**
+
+---
+
+## Priority industries (Industry Priority row)
+
+Map the lead’s **vertical** (Apollo industry, LinkedIn company description, website copy, job titles/services) to **one** tier for the **Industry Priority** criterion:
+
+| Tier | Points | Examples / guidance |
+|------|--------|---------------------|
+| **High** | **+10** | Real estate agencies, buyer’s agents, property management; trades (roofing, electrical, plumbing, HVAC), construction, builders; recruitment agencies; mortgage/finance brokers; accounting firms; clinics (physio, chiro, dental), med spas, gyms; home services; commercial field services |
+| **Medium** | **+5** | Branding/creative/web agencies, niche consultancies, marketing agencies, education/coaching businesses |
+| **Low** | **0** | Ecommerce, SaaS, generic tech startups |
+| **Negative** | **−10** | AI agencies, automation consultants, crypto/web3, enterprise/corporate procurement-heavy orgs, highly technical positioning, “make money online” operators |
+
+If unclear between High and Medium, prefer evidence from **what they sell** and **who buys** (B2B services to local/SMB vs agency retainers to brands).
+
+---
+
+## Disqualification rules (apply before and during scoring)
+
+**Disqualify** (classification **Disqualified**, score **0**, skip numeric models) when any of these are **clear and primary**:
+
+- Sells AI services or AI consulting as core offer  
+- Heavily posts about AI; positions as automation expert; prompt/agent/workflow influencer vibe  
+- Already offers AI consulting or shows internal AI/automation team as main differentiator  
+- Enterprise/corporate with complex procurement (not founder-accessible)  
+- Spam, student-only, recruiter-only, or impossible to classify with reasonable confidence  
+
+**Heavy penalty or disqualify** (if not fully Disqualified, drive **Operational Pain** and overall fit **down**—and consider Disqualified if overwhelming):
+
+- Operational pain signals absent because they are **already heavily systemised** (strong ops/CRM/automation messaging across site + LinkedIn with no chaos signals)  
+
+**Check evidence across:** LinkedIn profile, posts/content, website, service offering, company description.
+
+---
 
 ## Sales pathways (two tracks)
 
-| Lead type       | What you sell them      |
-|----------------|-------------------------|
-| **Agency**     | White label offering    |
+| Lead type | What you sell them |
+|-----------|-------------------|
+| **Agency** | White label offering |
 | **Business Owner** | Direct subscription |
-| **Disqualified** | Do not sell — score band \< 40 or explicit disqualification |
+| **Disqualified** | Do not sell — band \< 40 or explicit disqualification |
 
 ---
 
@@ -33,7 +89,7 @@ Search for contacts that are **new / not yet qualified** for this pipeline. Use 
 Use the [Search contacts API](https://developers.hubspot.com/docs/api-reference/latest/crm/objects/contacts/search/search-contacts):
 
 ```
-POST https://api.hubapi.com/crm/objects/2026-03/contacts/search
+POST https://api.hubapi.com/crm/v3/objects/contacts/search
 Authorization: Bearer $HUBSPOT_ACCESS_TOKEN
 Content-Type: application/json
 
@@ -77,8 +133,7 @@ Content-Type: application/json
 }
 ```
 
-
-For each contact, capture: `id`, first/last name, company, job title, **`hs_linkedin_url`** (public profile — **use for Apollo**), **`linkedin_sales_lead_url`** (Sales Navigator lead page), email, phone, and any HubSpot location fields — these are the baseline to compare against Apollo so you only **fill gaps** on the contact and on the linked **company** (domain / website / industry live on the **company** object; fetch or create that record during backfill — see below).
+For each contact, capture: `id`, first/last name, company, job title, **`hs_linkedin_url`** (public profile — **use for Apollo**), **`linkedin_sales_lead_url`** (Sales Navigator lead page), email, phone, and any HubSpot location fields — baseline to compare against Apollo so you only **fill gaps** on the contact and on the linked **company** (domain / website / industry live on the **company** object; fetch or create that record during backfill — see below).
 
 ---
 
@@ -101,7 +156,7 @@ python3 apollo.py company --domain "<org_primary_domain>" --json
 
 From Apollo **person** JSON, extract at least: name, title, headline, email, phone, city/state/country, public LinkedIn profile URL, and `organization` (name, `primary_domain`, `estimated_num_employees`, industry, short description, technologies, etc.).
 
-From Apollo **organization** JSON, extract: domain, industry, employee estimates, revenue/funding hints, description, tech stack — use these to inform **website quality**, **revenue indicators**, and **business maturity** where LinkedIn alone is thin.
+From Apollo **organization** JSON, extract: domain, industry, employee estimates, description — use with LinkedIn + site to assign **Industry Priority**, **Company Size**, and **Business maturity** (Business Owner) where LinkedIn alone is thin.
 
 ### Backfill HubSpot from Apollo (required)
 
@@ -118,7 +173,7 @@ After Step 2, **push missing data to HubSpot** so the CRM matches what Apollo re
 | `company` | `organization.name` when company text is empty |
 | `city` / `state` / `country` | Person location (consistent with geography in Step 5) |
 
-**Website and organization on the company record:** HubSpot’s **company** object usually owns `domain`, `website`, `industry`, `numberofemployees`, and description-style fields. Using the [HubSpot skill](../skills/hubspot/SKILL.md):
+**Website and organization on the company record:** HubSpot’s **company** object usually owns `domain`, `website`, `industry`, `numberofemployees`, and description-style fields. Using the [HubSpot skill](../hubspot/SKILL.md):
 
 1. Resolve or create the **company** by Apollo `primary_domain` / org domain (search companies by `domain`, or create if none).
 2. PATCH the company with missing **`domain`**, **`website`** (use org URL from Apollo, or `https://<primary_domain>` when only domain is known), **`name`**, **`industry`**, **`numberofemployees`** (map Apollo employee estimate to the format your property expects), and **description** / long-text fields if empty.
@@ -130,11 +185,11 @@ If Apollo returns no person, still attempt `company` using a domain inferred fro
 
 **When Apollo is insufficient — treat as “Apollo off” for scoring inputs**
 
-If any of the following is true, treat Apollo as off for those scoring inputs and use **only Step 3 + HubSpot** for the signals Apollo would normally supply (org size, industry, maturity, website quality, etc.). Step 3 is mandatory for every contact regardless; when Apollo is insufficient it must **fully substitute** for Apollo data:
+If any of the following is true, treat Apollo as off for those scoring inputs and use **only Step 3 + HubSpot** for the signals Apollo would normally supply (org size, industry, maturity, etc.). Step 3 is mandatory for every contact regardless; when Apollo is insufficient it must **fully substitute** for Apollo data:
 
-- Apollo CLI errors (auth, rate limit, 5xx), timeout, or empty / `null` person match
-- Person match exists but **no usable `organization`** (no domain, no employee estimate, no description)
-- `company` enrich fails or returns no organization
+- Apollo CLI errors (auth, rate limit, 5xx), timeout, or empty / `null` person match  
+- Person match exists but **no usable `organization`** (no domain, no employee estimate, no description)  
+- `company` enrich fails or returns no organization  
 
 In that case, note in the qualification block: `Apollo: unavailable or partial — scored from Sales Navigator profile + website`.
 
@@ -142,113 +197,162 @@ In that case, note in the qualification block: `Apollo: unavailable or partial �
 
 ## Step 3 — LinkedIn Sales Navigator profile + website (browser)
 
-**Mandatory for every contact:** complete the full Sales Navigator profile review **and** the website visits below—do not skip or shorten this step because Apollo returned data; use Apollo as a cross-check when it is available. When Apollo failed or is partial (see Step 2), extract everything you can from the profile and the web so those rows can still be scored.
+**Mandatory for every contact:** complete the full Sales Navigator profile review **and** the website visits below—do not skip because Apollo returned data. Use Apollo as a cross-check. This step is where you **detect disqualifiers** (AI/automation positioning), **founder proximity**, **operational pain**, and **industry** evidence.
 
 1. **Open the lead** in Sales Navigator using **`linkedin_sales_lead_url`** if present; otherwise open **`hs_linkedin_url`**.
-2. From the **Sales Navigator lead profile** (and linked company panel if shown), capture:
-   - Headline, About, current role, company name, **employee range** if shown, location / geography
-   - Recent posts and engagement (**LinkedIn activity** for scoring)
-   - Language that implies **agency** (clients, retainers, “we help brands”, services roster) vs **business owner** (single operating company, product, local service)
-   - **Any website URL** on the profile or company card (company site, Linktree, portfolio, “Visit website”)
-   - For **Step 5** (website, maturity, revenue, pain): open the **company Page** from the panel when possible (About, Posts, **Jobs** / hiring). Count **open job posts** and note **scaling** language; apply the **Agency rows 5–8 metrics** (and the same evidence rules for Business Owner rows 3–6) in Step 5.
-3. **Website visit:** For each distinct external site linked from the profile (prioritize the **company website**), open it in a **new tab**, confirm it loads, and assess **website quality**, **service clarity**, **business maturity** (case studies / testimonials), and **revenue / offer structure** (packages, pricing, “our clients”, retainers). Close site tabs when done.
+2. From the **Sales Navigator lead profile** (and linked company panel), capture:
+   - Headline, About, current role, company name, **employee range** if shown, location / geography  
+   - Recent posts and engagement — **scan for AI/automation selling, prompt/agent workflow hype, enterprise-only tone**  
+   - Language that implies **agency** (clients, retainers, “we help brands”, services roster) vs **business owner** (single operating company, local/trade/clinic/service business)  
+   - **Founder proximity:** named founder on site/branding, founder posting personally, founder in sales/content  
+   - **Operational pain:** hiring admin/sales/Ops, “swamped”, inconsistent follow-up, manual/backend complaints, growth strain, messy CRM, disconnected tools  
+   - **Heavily systemised signal:** strong “fully automated”, mature ops stack marketed as finished — penalise operational pain / fit per disqualification rules  
+   - **Any website URL** on the profile or company card  
+   - Open the **company Page** when possible (About, Posts, **Jobs**). Count **open roles**; note admin/sales/ops hiring vs only senior IC  
+3. **Website visit:** For each distinct external site linked from the profile (prioritize the **company website**), open it in a **new tab**, confirm it loads, and assess **offer clarity**, **founder visibility**, **social proof / maturity**, **revenue structure** (packages, retainers, booking), and **fit vs negative ICP** (AI agency, automation consultant, enterprise). Close site tabs when done.
 
-   **Optional public-web research helpers:** If needed, you may use `web_search` to discover public sources (official site pages, company profiles, public job pages, press, reviews) and use web content fetching tools to read **public website content** for evidence. Use these only for public pages, cite what you used in `lead_score_details`, and do not use private/authenticated content.
+   **Optional public-web research helpers:** If needed, use `web_search` and public page fetches for evidence. Cite what you used in `lead_score_details`. Do not use private/authenticated content.
 
-   **Website analysis (required per site — summarize under that URL in `lead_score_details`):** Beyond the rubric used for scoring, explicitly assess each company site (and any distinct service URL you opened) on:
+   **Website analysis (required per site — summarize under that URL in `lead_score_details`):** Beyond scoring tiers, record briefly:
 
    | Dimension | What to record |
    |-----------|----------------|
-   | **Speed** | Perceived cold-load performance (snappy vs sluggish first paint); obvious issues (long blank screen, huge hero media, blocking interstitial); if you use tooling (PageSpeed Insights, Lighthouse, or network tab in devtools), note **one headline** (e.g. “Lighthouse performance ~45 mobile” or “many large images”) — tooling is **optional**, observation is **required**. |
-   | **Mobile responsiveness** | Resize to a narrow viewport (or device mode): readable text without horizontal scroll, tap targets and nav usable, CTAs not clipped; flag fixed-width or broken layouts. |
-   | **SEO** | `<title>` / meta description quality (view source or inspector), logical H1 and heading hierarchy on key pages, indexable-looking URLs (not all hash-only), presence of **blog/help** or **sitemap** / `robots` hints if obvious; obvious gaps (duplicate empty titles, missing meta, thin doorway pages). |
-   | **E-commerce capabilities** | Whether they **sell online** (cart, checkout, product catalog, “add to bag”, subscriptions). Note platform hints if visible (Shopify, WooCommerce, Stripe Checkout, Snipcart, etc.), B2B quote-only vs self-serve checkout, internationalization (currency/shipping). If **not** commerce, state **N/A — service/marketing site** (or brochure-only). |
-   | **Overall modern aesthetic** | Visual and UX currency: typography, spacing, imagery quality, consistent components vs dated template; accessibility basics (contrast, focus states) if noticeable without deep audit. |
+   | **Speed** | Perceived load (snappy vs sluggish); optional Lighthouse/PageSpeed headline |
+   | **Mobile responsiveness** | Narrow viewport: readable, usable nav/CTAs |
+   | **SEO** | Title/meta/H1 sanity; obvious gaps |
+   | **E-commerce** | Cart/checkout vs brochure/service site (note **N/A** if not commerce) |
+   | **Overall aesthetic** | Modern vs dated; cohesion |
 
-   Keep each dimension to **one short sentence** per URL unless a severe issue needs a second line. These notes **inform** Step 5 “Website quality” and related rows but do not replace the Step 5 point math.
+   These notes **support** Service clarity, maturity, and “professional front vs chaotic ops” judgment; they do not replace founder/industry/pain evidence.
 
-4. Use this evidence to fill **every scoring row** that lacks Apollo data (company size, geography, website quality, maturity, revenue indicators, pain signals, service clarity). If a value is still unknown after profile + site review, use the rubric’s **0** or **Unclear** tier and say so in the score breakdown.
+4. Use this evidence to fill **every scoring row** that lacks Apollo data. If unknown after profile + site, use the rubric **0** / **Unclear** tier and say so in the breakdown.
 5. Close the profile tab when finished.
 
 ---
 
 ## Step 4 — Classify lead type (before scoring)
 
-Each contact gets exactly one bucket:
+Every lead must be classified **before** applying points.
 
-| Classification   | Definition |
-|------------------|------------|
-| **Agency**       | Service-based business selling services to clients (agency, studio, consultancy positioning). **White label** pathway. |
-| **Business Owner** | Operating company that is **not** primarily an agency selling to clients’ brands (e.g. product, local business, in-house brand). **Direct subscription** pathway. |
-| **Disqualified** | Wrong ICP, spam, student, recruiter-only, competitor, or impossible to classify with reasonable confidence. |
+| Classification | Definition | Examples |
+|----------------|------------|----------|
+| **Agency** | Service business selling services to **clients** (white label pathway) | Branding/creative/web agencies, recruitment firms, marketing agencies, niche consultancies |
+| **Business Owner** | **Non-agency** operating company (direct subscription pathway) | Trades, construction, real estate, clinics, gyms, professional/home/commercial services, accounting practices |
+| **Disqualified** | Outside ICP, negative tier primary business, or DQ rules above | AI agencies, automation consultants, enterprise procurement-only, crypto/web3 core, spam/low-quality |
 
-If **Disqualified**, set score to `0`, skip the numeric models below, set priority band to **Disqualified**, and still PATCH HubSpot (see Step 7).
+If **Disqualified**, set score to **`0`**, skip Step 5 models, set band **Disqualified**, and still PATCH HubSpot (see Step 7).
 
 ---
 
 ## Step 5 — Apply the correct scoring model (max 100)
 
-Use **only one** model per contact.
+Use **exactly one** model per contact. **Compute the sum of all rows; clamp `lead_score` to the range 0–100** if arithmetic yields a value outside that range (e.g. rare edge cases). Industry Priority may be **−10**, which pulls the total down.
+
+### Geography (both models)
+
+| Tier | Points |
+|------|--------|
+| USA | **10** |
+| Australia | **8** |
+| UK | **6** |
+| Canada | **5** |
+| Other | **0** |
+
+Prefer contact **country** from HubSpot, then Apollo person country, then org HQ / profile location.
+
+### Company size — employees (both models)
+
+Use Apollo `estimated_num_employees` + LinkedIn company hints + website/careers; if unknown, **0 for this row** and say so.
+
+| Band | Points |
+|------|--------|
+| **3–20** | **15** |
+| **2** | **10** |
+| **20–30** | **5** |
+| **1** | **0** |
+| **30+** | **0** |
 
 ### A. Agency scoring model (white label) — total 100
 
 **Only if classified Agency.**
 
-| # | Criterion | Points |
-|---|-----------|--------|
-| 1 | Lead type | Agency → **20**; otherwise use Business Owner model |
-| 2 | Geography | United States **15**, Australia **13**, UK **10**, Canada **8**, Other **0** |
-| 3 | Company size (employees) | 5–20 **10**, 2–5 **7**, 20–30 **5**, 1 **0** (use Apollo `estimated_num_employees` + LinkedIn; if unknown, treat as Other band **0** for this row) |
-| 4 | LinkedIn activity | Active (weekly post/engagement) **10**, Semi-active **5**, Inactive **0** |
-| 5 | Website quality | High / clear offer **10**, Basic **5**, Poor/none **0** |
-| 6 | Business maturity | Case studies/testimonials **10**, Limited **5**, None **0** |
-| 7 | Revenue indicators | Retainers / multiple clients **10**, Some client work **5**, Unclear **0** |
-| 8 | Pain / need signals | Hiring/scaling **10**, Some **5**, None **0** |
-| 9 | Service clarity | Clear niche **5**, Generalist **2**, Unclear **0** |
+| # | Criterion | Max | Tiers / notes |
+|---|-----------|-----|----------------|
+| 1 | **Lead type** | **10** | Agency → **10** (only this model applies) |
+| 2 | **Industry Priority** | **10** | High **+10**, Medium **+5**, Low **0**, Negative **−10** (see industry table) |
+| 3 | **Geography** | **10** | See geography table |
+| 4 | **Company size** | **15** | See company size table |
+| 5 | **Founder proximity** | **15** | Highly visible / involved **15**; somewhat **8**; corporate / invisible **0** |
+| 6 | **Operational pain signals** | **20** | Clear pressure **20**; some **10**; none obvious **0** |
+| 7 | **Revenue indicators** | **10** | Retainers / multiple active clients **10**; some client work **5**; unclear **0** |
+| 8 | **Service clarity** | **5** | Clear niche **5**; generalist **2**; unclear **0** |
+| 9 | **Responsiveness signals** | **5** | Founder-accessible / direct **5**; some gatekeeping **2**; corporate process **0** |
 
-**Metrics for rows 5–8 (Agency) — Step 3 website visit + LinkedIn company Page + jobs**
+**Founder proximity — evidence**
 
-Evidence must come from what you **actually opened**: the **company website** (and any distinct service URLs from the profile), the **LinkedIn company Page** from Sales Navigator (company panel / “View company” — About, Posts, Jobs if visible), and **LinkedIn job posts** for that company when available. Apollo org data can **support** but does not replace visiting site + company presence.
+- **High:** Founder posts personally; visible on website/About; involved in sales or content; founder-led branding obvious  
+- **Somewhat:** Founder named but low visibility; occasional presence  
+- **Low/corporate:** No identifiable founder; generic corporate voice only  
 
-| # | Criterion | **High / full points tier — count toward “High” when enough signals match** | **Basic / middle tier** | **Low / zero tier** |
-|---|-----------|-----------------------------------------------------------------------------|-------------------------|---------------------|
-| **5** | **Website quality** | Treat as **High (10)** when **≥4** of: loads without error; HTTPS; clear primary navigation; services or offer explained above the fold; credible visuals/typography; working contact or booking CTA; mobile usable; no major broken flows. **Or** a polished portfolio + clear “what we sell” in one scroll. **Count Step 3 website-analysis signals where they strengthen this row:** strong **speed** perception, **mobile** layout clean at narrow width, **SEO** basics solid on homepage, **e-commerce** flows professional when applicable, **modern aesthetic** cohesive — any of these can substitute for one of the classic bullets when clearly evidenced. | **Basic (5):** Site exists but template-y, thin copy, vague services, one-page placeholder, or only a Linktree-style hub with weak business detail. **Or** several of speed / mobile / SEO / aesthetic are weak but the site still communicates an offer. | **Poor/none (0):** No company site, domain parking, 404/timeout, unrelated site, or you could not verify a real business site after Step 3. |
-| **6** | **Business maturity** | **High (10):** **≥2** strong proof signals across **website + LinkedIn company**: named client logos or case studies, dated testimonials, project galleries, press/awards, detailed team/credentials **or** company Page posts that showcase deliverables (before/after, campaign results, client shout-outs). | **Limited (5):** Exactly **1** weak signal (e.g. generic “trusted by brands” with no names, single anonymous quote, sparse portfolio). | **None (0):** No client proof on site **and** nothing on the company Page that shows shipped work for clients. |
-| **7** | **Revenue indicators** | **High (10):** **≥2** signals from **website and/or company LinkedIn**: retainers or packages, pricing or “starting at”, clear service tiers, “book strategy / discovery”, multiple named client types, “ongoing” / subscription language for services, or explicit fractional/interim positioning tied to revenue. | **Some (5):** Clear they serve clients but **no** explicit commercial structure (no packages, pricing, or retainer language). | **Unclear (0):** Cannot infer how they sell or monetize from site + company profile. |
-| **8** | **Pain / need signals** | **High (10):** **Hiring / scaling:** **≥2** live **company job posts** (LinkedIn Jobs or careers page linked from site) in delivery, sales, growth, ops, or PM — **or** strong scaling narrative in **company Page posts** or About (headcount growth, new office, “we’re growing the team”) in roughly the **last 60 days**. Count **open roles** when you can see them. | **Some (5):** **1** open role **or** older/weaker hiring mention, or personal lead post about workload without company-level hiring. | **None (0):** No job posts and no credible scaling/hiring pressure from company Page or site. |
+**Operational pain — evidence (Agency)**
 
-In `lead_score_details`, each scoring row must include **why** those points were assigned: cite the rubric tier you used and the **evidence** (e.g. geography source, employee band + where seen, activity frequency, site signals counted for website quality — **tie website quality to Step 3’s Speed / Mobile / SEO / E-commerce / Aesthetic notes when relevant**). One or two sentences per criterion is typical; avoid vague scores with no reasoning.
+- **Clear:** Hiring admin/sales/support; inconsistent marketing; rapid growth narrative; bottlenecks; disconnected systems; messy backend / CRM chaos signals  
+- **Some:** One weak signal (single hire, vague “busy”)  
+- **None:** Quiet ops, no growth strain, or **already heavily systemised** with no chaos  
+
+**Revenue indicators**
+
+- **Strong:** Retainers, multiple active clients, packages, ongoing/recurring service language  
+- **Some:** Clear client work without structure  
+- **Unclear:** Cannot infer  
+
+---
 
 ### B. Business Owner scoring model (direct subscription) — total 100
 
 **Only if classified Business Owner.**
 
-| # | Criterion | Points |
-|---|-----------|--------|
-| 1 | Geography | United States **15**, Australia **13**, UK **10**, Canada **8**, Other **0** |
-| 2 | Company size | 5–20 **10**, 2–5 **7**, 20–30 **5**, 1 **0** |
-| 3 | Website quality | High / clear offer **15**, Basic **8**, Poor/none **0** |
-| 4 | Business maturity | Case studies/testimonials **15**, Limited **8**, None **0** |
-| 5 | Revenue indicators | Clear revenue + structured offering **10**, Some **5**, Unclear **0** |
-| 6 | Pain / need signals | Hiring/scaling/operational pressure **25**, Some **12**, None **0** |
-| 7 | Service clarity | Clear offer **10**, Somewhat clear **5**, Unclear **0** |
+| # | Criterion | Max | Tiers / notes |
+|---|-----------|-----|----------------|
+| 1 | **Industry Priority** | **10** | High **+10**, Medium **+5**, Low **0**, Negative **−10** |
+| 2 | **Geography** | **10** | See geography table |
+| 3 | **Company size** | **15** | See company size table |
+| 4 | **Founder proximity** | **20** | Highly visible **20**; somewhat **10**; corporate / invisible **0** |
+| 5 | **Operational pain signals** | **25** | Clear **25**; some **12**; none **0** |
+| 6 | **Revenue indicators** | **10** | Clear revenue / structured offering **10**; some **5**; unclear **0** |
+| 7 | **Business maturity** | **5** | Established + testimonials/proof **5**; some proof **2**; none **0** |
+| 8 | **Responsiveness signals** | **5** | Founder-accessible **5**; some gatekeeping **2**; corporate **0** |
 
-For **rows 3–6** (website quality, business maturity, revenue, pain), use the **same evidence definitions and signal counts** as in the Agency table above (company **website** + **LinkedIn company Page** + **job posts** / scaling narrative); only the **point weights** differ (15/8/0, 15/8/0, 10/5/0, 25/12/0). Row **3 (Website quality)** must still be supported by the **Step 3 website-analysis dimensions** (Speed, Mobile, SEO, E-commerce, Aesthetic) in the `Websites reviewed` block, same as Agency.
+**Operational pain — evidence (Business Owner)**
 
-Geography: prefer contact **country** from HubSpot, then Apollo person country, then org HQ.
+- **Clear:** Hiring staff; slow/manual processes; inconsistent follow-up; multiple service lines straining ops; growth strain; overload; poor backend systems; active but inconsistent marketing  
+- **Some:** One or two medium signals  
+- **None:** No strain or already highly systemised end-to-end  
+
+**Business maturity**
+
+- **Established:** Testimonials, reviews, case-style proof, years in business signals  
+- **Some:** Sparse proof  
+- **None:** No proof  
+
+In `lead_score_details`, each scoring row must include **why** those points were assigned: cite tier + **evidence** (URLs, post themes, job counts, founder visibility). Tie website notes to clarity/maturity where relevant.
 
 ---
 
-## Step 6 — Priority bands (both models)
+## Step 6 — Priority bands
 
-| Score   | Band |
-|---------|------|
-| 80–100  | **High Priority** |
-| 60–79   | **Medium** |
-| 40–59   | **Low** |
-| \< 40   | **Disqualified** |
+| Score | Band |
+|-------|------|
+| **80–100** | **High Priority** |
+| **60–79** | **Medium Priority** |
+| **40–59** | **Low Priority** |
+| **\< 40** | **Disqualified** |
 
 If the math yields **\< 40** on a classified Agency/Business Owner lead, treat the **priority band** as Disqualified (you may keep the raw sum in `lead_score_details` for audit).
+
+**High-priority lead characteristics (qualitative check)**
+
+Founder-led; **3–20** staff; operationally stretched; manual/inconsistent systems; growing quickly; weak backend; responsive/decisive; traditional ops behind a strong front—**operational chaos behind growth**.
 
 ---
 
@@ -283,78 +387,91 @@ Content-Type: application/json
 **`lead_score` and `lead_score_details` (required custom contact properties):**
 
 - **`lead_score`:** Set to the **final total** from Step 5 (0–100). For **Disqualified**, use **`0`**. Use the value HubSpot expects for your number property (typically a string in the API, e.g. `"72"`).
-- **`lead_score_details`:** A **multi-line text** field. Put **everything** here: (1) a short run header, (2) **every scoring row** for the model used with **points and explicit reasoning** per criterion (why that tier / points — tie to evidence and the Step 5 rubric), (3) data-source and research audit lines. **Do not omit scoring rows.** Do **not** duplicate this block into `hs_content_membership_notes` unless your portal separately requires that field for another workflow.
+- **`lead_score_details`:** Multi-line text: run header, **every scoring row** for the model used with points + reasoning, data-source audit. **Do not omit scoring rows.**
 
 **Suggested structure (in order):**
 
 ```
 --- QUALIFICATION <ISO date> ---
+Positioning check: Operational infrastructure fit | Not positioning lead as AI vendor (Y/N + note)
 Pathway: Agency | White label OR Business Owner | Direct subscription OR Disqualified
 Classification: Agency | Business Owner | Disqualified
 Model used: Agency (100) | Business Owner (100) | N/A
 Score: <n>/100 | Band: High | Medium | Low | Disqualified
+Disqualifiers checked: <LinkedIn / posts / site — AI-automation-enterprise signals found or none>
 
-[Scoring — each line: label, points, then reasoning]
+[Scoring — each line: label, points, reasoning]
 
 Data sources: Apollo OK | Apollo unavailable or partial — Sales Navigator + website
 Apollo person summary: <1-3 lines, or "N/A — see LinkedIn/website notes">
 Apollo org summary: <1-3 lines, or "N/A — see LinkedIn/website notes">
-LinkedIn / Sales Navigator: <activity, positioning, employee hints from profile>
-Websites reviewed: <for each URL: 1-line business takeaway + compact Speed | Mobile | SEO | E-commerce | Aesthetic — see Step 3 table>
+LinkedIn / Sales Navigator: <activity, founder, pain, hiring>
+Websites reviewed: <each URL + compact Speed | Mobile | SEO | E-commerce | Aesthetic>
 ```
 
-**Agency model — after the header, include all 9 scored rows** (labels match Step 5A). Each line: **`Criterion: <points> — <reasoning>`** (reasoning must justify the tier against the rubric).
+**Agency model — include all 9 rows:**
 
 ```
-Lead type (Agency): <n> — <why Agency vs other; if N/A explain>
-Geography: <n> — <country/source; why US/AU/UK/CA/Other tier>
-Company size: <n> — <band + evidence: Apollo / LinkedIn / unknown>
-LinkedIn activity: <n> — <active / semi / inactive + what you saw>
-Website quality: <n> — <high/basic/poor + key signals from Step 3>
-Business maturity: <n> — <tier + proof signals found or missing>
-Revenue indicators: <n> — <tier + commercial structure evidence>
-Pain / need signals: <n> — <tier + jobs/scaling evidence or absence>
-Service clarity: <n> — <niche / generalist / unclear + why>
+Lead type (Agency): <n> — …
+Industry Priority: <n> — High/Medium/Low/Negative + why
+Geography: <n> — …
+Company size: <n> — band + evidence
+Founder proximity: <n> — tier + evidence
+Operational pain signals: <n> — tier + evidence
+Revenue indicators: <n> — …
+Service clarity: <n> — …
+Responsiveness signals: <n> — …
 ```
 
-**Business Owner model — 7 scored rows** (labels match Step 5B), same **`Criterion: <points> — <reasoning>`** pattern (no “Lead type (Agency)” or “LinkedIn activity” rows).
-
-Filled example (Agency — abbreviated reasoning; expand to your actual evidence):
+**Business Owner model — include all 8 rows:**
 
 ```
---- QUALIFICATION 2026-04-20 ---
+Industry Priority: <n> — …
+Geography: <n> — …
+Company size: <n> — …
+Founder proximity: <n> — …
+Operational pain signals: <n> — …
+Revenue indicators: <n> — …
+Business maturity: <n> — …
+Responsiveness signals: <n> — …
+```
+
+Filled example (Agency — abbreviated):
+
+```
+--- QUALIFICATION 2026-05-08 ---
+Positioning check: Fit — trades-adjacent agency; lead does not sell AI tooling.
 Pathway: Agency | White label
 Classification: Agency
 Model used: Agency (100)
-Score: 82/100 | Band: High Priority
+Score: 76/100 | Band: Medium Priority
+Disqualifiers checked: No AI/agency-automation positioning; SMB founder tone.
 
-Lead type (Agency): 20 — SN + site sell services to clients; white-label ICP.
-Geography: 15 — Contact country US (HubSpot); full US tier.
-Company size: 10 — Apollo org ~12 FTE; aligns 5–20 band.
-LinkedIn activity: 5 — Posts ~biweekly; not weekly → semi-active.
-Website quality: 10 — HTTPS, clear services nav, CTA; Step 3 analysis: speed snappy, mobile clean, SEO basics OK, N/A e-com (services), modern UI — met high-tier signal count.
-Business maturity: 10 — Named case study + client logos on site and company Page posts.
-Revenue indicators: 5 — Clear client work, packages mentioned but no explicit retainer copy.
-Pain / need signals: 5 — One open delivery role on LinkedIn Jobs; weak scaling narrative.
-Service clarity: 2 — Positioning is broad “digital marketing” vs sharp niche.
+Lead type (Agency): 10 — Retainer positioning to external clients.
+Industry Priority: 5 — Creative/marketing-adjacent studio → Medium tier.
+Geography: 10 — US contact + HQ.
+Company size: 15 — ~8 FTE (Apollo + LinkedIn).
+Founder proximity: 15 — Founder in headline; posts 2×/week.
+Operational pain signals: 10 — Hiring junior PM; posts about project overload.
+Revenue indicators: 5 — Client logos; no explicit retainer copy.
+Service clarity: 2 — Broad “creative partner” positioning.
+Responsiveness signals: 5 — Book-a-call CTA; founder email tone on site.
 
 Data sources: Apollo OK
 Apollo person summary: …
 Apollo org summary: …
 LinkedIn / Sales Navigator: …
-Websites reviewed: https://example.com — clear offer; Speed: snappy | Mobile: nav OK narrow | SEO: title+H1 sensible | E-commerce: N/A service site | Aesthetic: polished contemporary.
+Websites reviewed: https://example.com — service site; Speed: OK | Mobile: OK | SEO: basic | E-commerce: N/A | Aesthetic: contemporary.
 ```
 
-For **Disqualified**, lead with **`Disqualified: <reason>`** on the first content line, set **`lead_score`** to **`0`**, and use **`N/A — <brief why>`** on rubric lines only when you did not apply the numeric model; otherwise still briefly justify any partial assessment you did make.
+For **Disqualified**, lead with **`Disqualified: <reason>`**, set **`lead_score`** to **`0`**, and document DQ evidence from Step 3.
 
-**`hs_lead_status` rules (align with outreach):**
+**`hs_lead_status` rules**
 
-- If **Disqualified** (explicit DQ or band \< 40): set to **`UNQUALIFIED`** if that value exists in your portal; otherwise keep `NEW` and make the band explicit in **`lead_score_details`**.
-- If **qualified** (band Low or better, score ≥ 40): set to **`IN_PROGRESS`** so [lead-outreach.md](./lead-outreach.md) can pick them up for LinkedIn messaging.
+- **Disqualified** (explicit DQ or band \< 40): **`UNQUALIFIED`** if present in portal; else `NEW` with band explicit in details  
+- **Qualified** (≥ 40): **`IN_PROGRESS`** for outreach pickup  
 
-**Business Owner:** use the same **`lead_score_details`** structure: the **7 scored rows** from Step 5B (Geography through Service clarity), each with points and reasoning — no “Lead type (Agency)” or “LinkedIn activity” rows.
-
-If your HubSpot has **custom contact properties** (e.g. `sales_pathway`, `priority_band`), fill them in addition to **`lead_score`** and **`lead_score_details`** for reporting.
+If your HubSpot has **custom properties** (e.g. `sales_pathway`, `priority_band`), fill them too.
 
 ---
 
@@ -363,7 +480,7 @@ If your HubSpot has **custom contact properties** (e.g. `sales_pathway`, `priori
 Output a table:
 
 | Name | Company | Classification | Pathway | Score (`lead_score`) | Band | HubSpot updated |
-|------|---------|----------------|---------|----------------------|------|------------------|
+|------|---------|----------------|---------|----------------------|------|-----------------|
 
 If PATCH fails, record the error and continue with the next contact.
 
@@ -371,34 +488,27 @@ If PATCH fails, record the error and continue with the next contact.
 
 ## Step 9 — Send Slack alert for high-intent qualified leads
 
-After reporting, send a Slack notification for each lead where **`lead_score` is greater than 70**.
+After reporting, send a Slack notification for each lead where **`lead_score` ≥ 80** (High Priority band).
 
-**Trigger condition:**
-
-- Lead qualified with **`lead_score` > 70** (**High intent detected**).
-
-Use this command format:
+**Trigger:** `lead_score` **≥ 80**.
 
 ```bash
 openclaw message send --channel slack --target "channel:C0B0GAZ032L" --message "MESSAGE"
 ```
 
-**Message requirements (include all fields):**
+**Message requirements**
 
-- Header line: `MOSTLY — Lead Qualified - <lead_score> Score`
-- Name
-- Company
-- Conversation summary
-- LinkedIn profile link
+- Header: `MOSTLY — Lead Qualified - <lead_score> Score`  
+- Name, Company, Conversation summary, LinkedIn profile link  
 
-**Recommended message template:**
+**Template:**
 
 ```text
 MOSTLY — Lead Qualified <lead_score>
 Name: <firstname lastname>
 Company: <company>
-Conversation summary: <short 1-3 sentence summary from lead_score_details / qualification notes>
+Conversation summary: <1–3 sentences from qualification / operational fit>
 LinkedIn profile link: <hs_linkedin_url>
 ```
 
-If Slack send fails, log the failure in the run output and continue with the next lead.
+If Slack send fails, log the failure and continue.

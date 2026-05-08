@@ -2,13 +2,12 @@
 name: lead-outreach
 description: >-
   Run LinkedIn outreach only: read remaining Sales Navigator InMail credits, cap sends using
-  remaining weekdays this month (Mon–Fri), search HubSpot for IN_PROGRESS contacts with lead_score and
+  remaining weekdays this month (Mon-Fri), search HubSpot for IN_PROGRESS contacts with lead_score and
   linkedin_sales_lead_url, sort by lead_score descending, open each Sales Navigator lead page
-  (linkedin_sales_lead_url only — no public profile URLs for messaging), send a LinkedIn Message
+  (linkedin_sales_lead_url only - no public profile URLs for messaging), send a LinkedIn Message
   (subject + body), PATCH hs_lead_status, outreach_date (HubSpot datetime, full date+time of send),
-  and outreach_conversation
-  (append sent copy),
-  and report. Use when the user wants to message
+  and outreach_conversation (append sent copy), and report. First-touch messaging follows
+  workspace/skills/messaging-guidelines/SKILL.md. Use when the user wants to message
   qualified leads, run LinkedIn outreach, or work the post-qualification queue. Requires hubspot
   and linkedin-sales-navigator (browser); Sales Navigator session required.
 
@@ -23,8 +22,8 @@ Use the `hubspot` skill and `linkedin-sales-navigator` skill together to **outre
 
 **Before** fetching HubSpot contacts or opening lead tabs:
 
-1. **Read remaining InMail credits** in Sales Navigator (browser): open Sales Navigator (`linkedin-sales-navigator` skill), **snapshot** the chrome where LinkedIn surfaces monthly InMail allowance (often near compose / account or messaging entry points — wording like “InMail credits” or “credits remaining”). Record the integer **credits remaining**.
-2. **Compute today’s send budget** using **weekdays only** (Monday–Friday): count each weekday from **today** through the **last day of the current calendar month** (inclusive). Divide **`credits_remaining // working_days_remaining`** (integer division). That is the **maximum messages to send this run** (cap HubSpot fetch + sends at this number). **Re-run this step each session** with fresh credits so the budget tracks the rest of the month.
+1. **Read remaining InMail credits** in Sales Navigator (browser): open Sales Navigator (`linkedin-sales-navigator` skill), **snapshot** the chrome where LinkedIn surfaces monthly InMail allowance (often near compose / account or messaging entry points — wording like "InMail credits" or "credits remaining"). Record the integer **credits remaining**.
+2. **Compute today's send budget** using **weekdays only** (Monday-Friday): count each weekday from **today** through the **last day of the current calendar month** (inclusive). Divide **`credits_remaining // working_days_remaining`** (integer division). That is the **maximum messages to send this run** (cap HubSpot fetch + sends at this number). **Re-run this step each session** with fresh credits so the budget tracks the rest of the month.
 
 **Python helper** (stdlib only): [`scripts/inmail_monthly_pacing.py`](scripts/inmail_monthly_pacing.py)
 
@@ -34,7 +33,7 @@ Use the `hubspot` skill and `linkedin-sales-navigator` skill together to **outre
 python3 workspace/skills/lead-outreach/scripts/inmail_monthly_pacing.py --credits <N>
 ```
 
-- Optional: `--date YYYY-MM-DD` to simulate another “today”; `--min-one` if `credits > 0` but floor division yields 0 (forces 1 send — may burn credits faster).
+- Optional: `--date YYYY-MM-DD` to simulate another "today"; `--min-one` if `credits > 0` but floor division yields 0 (forces 1 send — may burn credits faster).
 
 Use **`plan.sends_budget_today`** as the cap. Do **not** exceed it unless the human overrides (e.g. month-end catch-up).
 
@@ -42,7 +41,7 @@ Use **`plan.sends_budget_today`** as the cap. Do **not** exceed it unless the hu
 
 ## Step 1 — Fetch leads ready for outreach (IN_PROGRESS, highest `lead_score` first)
 
-Search contacts with **`hs_lead_status = IN_PROGRESS`** (set by qualification when score ≥ 40), **`lead_score` populated** (from qualification), and **`linkedin_sales_lead_url`** (Sales Navigator lead page — **required** for this workflow; do not use `linkedin_url` or `hs_linkedin_url` to open or message). Sort by **`lead_score` descending** so the highest-scored leads are messaged first.
+Search contacts with **`hs_lead_status = IN_PROGRESS`** (set by qualification when score >= 40), **`lead_score` populated** (from qualification), and **`linkedin_sales_lead_url`** (Sales Navigator lead page — **required** for this workflow; do not use `linkedin_url` or `hs_linkedin_url` to open or message). Sort by **`lead_score` descending** so the highest-scored leads are messaged first.
 
 Use a **single** `filterGroup` (all filters AND): status, score, and Sales Navigator lead URL:
 
@@ -99,42 +98,32 @@ Set **`limit`** to **`sends_budget_today`** from Step 0 (example above uses `5` 
 
 **Legacy rows:** If some `IN_PROGRESS` contacts lack **`lead_score`** (not yet backfilled), remove the **`lead_score` HAS_PROPERTY** filter, fetch a larger batch if needed, and **sort client-side** by numeric **`lead_score`** descending (treat empty as last). Contacts **without** **`linkedin_sales_lead_url`** are **out of scope** for this prompt — backfill that URL via lead sourcing / qualification before outreach.
 
-Read **`outreach_conversation`** when present so appended outreach entries stay after prior thread history and you avoid repeating the same angle. Read **`outreach_date`** when present for last-touch context (you will overwrite it after a successful send with this run’s send **datetime**).
+Read **`outreach_conversation`** when present so appended outreach entries stay after prior thread history and you avoid repeating the same angle. Read **`outreach_date`** when present for last-touch context (you will overwrite it after a successful send with this run's send **datetime**).
 
 ---
 
-## Step 2 — Open each lead’s LinkedIn Sales Navigator profile
+## Step 2 — Open each lead's LinkedIn Sales Navigator profile
 
 For each contact:
 
 1. Open **`linkedin_sales_lead_url`** in a new tab (Sales Navigator lead page — **only** URL used for **Message** in this workflow). Do **not** open `linkedin_url` or `hs_linkedin_url` for sending.
 2. Wait for the profile to load.
-3. Skim headline, about, recent activity to infer pathway (agency vs business owner) and sharpen the message.
+3. Skim headline, about, recent activity to infer **industry / vertical** and **pathway** (agency vs business owner) — enough to pick the right opening question, not a full brief.
 
 ---
 
 ## Step 3 — Write and send a LinkedIn Message (not connection-only)
 
-Compose **before** clicking UI:
+**Before composing:** read `workspace/skills/messaging-guidelines/SKILL.md` and follow it in full. All tone, style, industry openers, body rules, and conversation guidelines live there.
 
-**Pathway-aware messaging**
+Key constraints for this step:
 
-- **Agency (white label):** speak to scaling delivery, margins, capacity, and serving their clients — not “buy our SaaS for your internal ops” unless that matches your offer.
-- **Business Owner (direct subscription):** speak to outcomes for their own business (time saved, revenue, clarity).
-
-**Subject line**
-
-- Under ~10 words, specific to their niche or a signal from profile/activity.
-- Avoid generic lines like “Quick question” or “Introduction”.
-
-**Body**
-
-- Personal, specific reference (post, role, company angle).
-- No filler (“Hope this finds you well”, “I came across your profile”).
-- Under ~5 sentences; end with one soft CTA or question.
-- Write like a human DM, not a template: natural tone, short conversational sentences.
-- Start the message body with exactly: `Hi {name},` (use the contact first name).
-- In the message text, do **not** use bullet-like formatting or separators such as `-`, `_`, `---`, or similar stylized markers.
+- This is a **first touch** — never pitch, never mention AI, never ask for a call.
+- Open with **`Hey {name},`** or **`Hi {name},`** and one short operational question matched to their vertical.
+- Subject line: under ~10 words, plain operational curiosity specific to their niche.
+- Body: 2-4 short sentences maximum; no filler, no bullet markers, no `\n` escape sequences in the sent text.
+- Draft the full message first, then paste into the Sales Navigator composer in one go — do not type line by line.
+- HubSpot `outreach_conversation` append blocks (Step 4) may use `---` as a log separator — that is internal only, never goes in the LinkedIn message itself.
 
 **Send steps (match Sales Navigator UI)**
 
@@ -144,12 +133,12 @@ Compose **before** clicking UI:
 4. Click **Send**.
 5. Confirm send; then close the profile tab.
 
-**Body format to use every time**
+**Body shape**
 
 ```text
-Hi {name},
+Hey {name},
 
-<personalized message in natural language, 2-5 short sentences, one soft CTA>
+<one operational question for their vertical — short, casual, no pitch>
 ```
 
 ---
@@ -158,7 +147,7 @@ Hi {name},
 
 Pick one **send datetime** (the moment the message was confirmed sent) and reuse it everywhere below. **`outreach_date`** is a HubSpot **datetime** field: PATCH it with **date and time**, not a date-only string. Use ISO-8601 with timezone, e.g. **`2026-04-20T18:05:00.000Z`** (UTC `Z`) or **`2026-04-20T14:05:00-04:00`** — include hours, minutes, seconds (and milliseconds if your client sends them); stay consistent (e.g. always UTC).
 
-**`outreach_date`:** Set to that same send datetime (replaces any prior value — it means “last outreach at”).
+**`outreach_date`:** Set to that same send datetime (replaces any prior value — it means "last outreach at").
 
 **`outreach_conversation`:** Append each sent message (do not replace the whole field). Use the existing value from Step 1 (or empty string if unset), then add a separator block with the **same** send timestamp, subject, and full body, e.g. `\n\n---\nLinkedIn message sent <ISO datetime>.\nSubject: <subject>\nBody: <full body>`.
 
@@ -176,7 +165,7 @@ Content-Type: application/json
 }
 ```
 
-Use **`OPEN`** (or your portal’s “Contacted / Working” value) instead of `IN_PROGRESS` so this contact is not picked again on the next outreach search. If you prefer to keep `IN_PROGRESS` until a reply, document that in your portal and change the filter in Step 1 accordingly.
+Use **`OPEN`** (or your portal's "Contacted / Working" value) instead of `IN_PROGRESS` so this contact is not picked again on the next outreach search. If you prefer to keep `IN_PROGRESS` until a reply, document that in your portal and change the filter in Step 1 accordingly.
 
 ---
 
@@ -185,7 +174,7 @@ Use **`OPEN`** (or your portal’s “Contacted / Working” value) instead of `
 1. Close all LinkedIn tabs opened for this run.
 2. Summary table:
 
-| Lead | Company | Score (`lead_score`) | Pathway (inferred) | Sent | `outreach_date` | HubSpot updated |
-|------|---------|----------------------|----------------------|------|-----------------|---------------|
+| Lead | Company | Score (`lead_score`) | Industry (inferred) | Pathway (inferred) | Sent | `outreach_date` | HubSpot updated |
+|------|---------|----------------------|----------------------|----------------------|------|-----------------|---------------|
 
-If send fails (limits, already in thread, UI blocked), log the reason, skip PATCH status to “sent” if appropriate, and continue.
+If send fails (limits, already in thread, UI blocked), log the reason, skip PATCH status to "sent" if appropriate, and continue.

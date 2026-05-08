@@ -3,7 +3,7 @@
   "jobs": [
     {
       "id": "dc83f20c-f3fb-43fb-8289-d9a457e2aeec",
-      "agentId": "lead-sourcing",
+      "agentId": "main",
       "name": "Lead Sourcing",
       "enabled": false,
       "createdAtMs": 1776423233124,
@@ -29,7 +29,7 @@
     },
     {
       "id": "88fdef23-e195-4a67-a6d6-675d693f9a14",
-      "agentId": "lead-qualification",
+      "agentId": "main",
       "name": "Lead Qualification",
       "enabled": false,
       "deleteAfterRun": false,
@@ -37,13 +37,13 @@
       "schedule": {
         "kind": "every",
         "everyMs": 1800000,
-        "anchorMs": 1778138554411
+        "anchorMs": 1778223850654
       },
       "sessionTarget": "session:sales-agent-qualification",
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Execute the end-to-end lead qualification workflow as per standing instructions. Retrieve 2 leads and perform full qualification on each."
+        "message": "Execute the end-to-end lead qualification workflow as per standing instructions. Retrieve 1 leads and perform full qualification on each."
       },
       "delivery": {
         "mode": "none",
@@ -54,7 +54,7 @@
     },
     {
       "id": "2d0d530b-6cc5-4091-9975-e48bfd8daa5d",
-      "agentId": "lead-outreach",
+      "agentId": "main",
       "name": "Lead Outreach",
       "enabled": false,
       "deleteAfterRun": false,
@@ -79,7 +79,7 @@
     },
     {
       "id": "51c668df-7999-4a50-8087-fef83a93f661",
-      "agentId": "lead-conversation",
+      "agentId": "main",
       "name": "Lead Conversation",
       "enabled": false,
       "deleteAfterRun": false,
@@ -105,7 +105,7 @@
     },
     {
       "id": "0e3fb0a1-5d90-4d66-9c91-9ed4f523c8a2",
-      "agentId": "linkedin-follow-up",
+      "agentId": "main",
       "name": "LinkedIn Follow-Up",
       "enabled": false,
       "deleteAfterRun": false,
@@ -129,7 +129,7 @@
     },
     {
       "id": "4f8dd909-8863-47f8-9bd2-901a98e39d96",
-      "agentId": "email-follow-up",
+      "agentId": "main",
       "name": "Email Follow-Up",
       "enabled": false,
       "deleteAfterRun": false,

@@ -4,6 +4,7 @@ description: >-
   Follow up via email for HubSpot OPEN leads after LinkedIn follow-up is sent
   and outreach_date is 72+ hours old, then append outreach_conversation and set
   email_follow_up_sent=true in HubSpot without changing outreach_date.
+  Follow-up messaging follows workspace/skills/messaging-guidelines/SKILL.md.
 metadata:
   openclaw:
     emoji: 💬
@@ -36,17 +37,19 @@ Read **`outreach_conversation` in full** so the follow-up avoids repeating the s
 
 ## Step 2 - Prepare the Gmail follow-up
 
+**Before composing:** read `workspace/skills/messaging-guidelines/SKILL.md` and follow it in full for tone, style, conversation framework, and body rules.
+
 For each selected contact:
 
 1. Confirm `email` and personalization fields (`firstname`, `company`, role context).
 2. Review the last outreach block in `outreach_conversation`.
 3. Draft one short follow-up email:
-   - Acknowledge prior outreach briefly.
-   - Add one new value point, insight, or relevant question.
-   - Keep it concise (~3-6 short sentences).
-   - Include one clear next step / CTA.
+   - Continue the operational conversation naturally — acknowledge what was sent, add one new angle or question, keep it low pressure.
+   - Follow tone rules from `messaging-guidelines`: relaxed, conversational, no marketing language, no mention of AI, no immediate pitch.
+   - Keep it concise (~3-5 short sentences).
+   - End with one soft question or gentle next step — not "book a call".
 
-**Forbidden:** copy-pasting the original first-touch email, generic "just checking in" with no new substance, or multi-paragraph long-form emails.
+**Forbidden:** copy-pasting the original first-touch, generic "just checking in" with no new substance, multi-paragraph long-form, or pitching services directly.
 
 ## Step 3 - Send follow-up via `gog`
 
