@@ -158,7 +158,7 @@ def _submit_invite_modal(page: Any, note: Optional[str], timeout_ms: int, dry_ru
         modal_groups = (
             (MODAL_SEND_INVITE, MODAL_SEND_WITHOUT_NOTE)
             if note
-            else (MODAL_SEND_WITHOUT_NOTE, MODAL_SEND_INVITE)
+            else (MODAL_SEND_INVITE, MODAL_SEND_WITHOUT_NOTE)
         )
 
         for group in modal_groups:
@@ -167,6 +167,20 @@ def _submit_invite_modal(page: Any, note: Optional[str], timeout_ms: int, dry_ru
                     btn = page.locator(sel).first
                     if btn.is_visible(timeout=2500):
                         if try_click(btn) or try_click(btn, force=True):
+                            # Wait for modal to dismiss — confirms invite was submitted
+                            try:
+                                page.wait_for_selector(
+                                    "[role='dialog']",
+                                    state="hidden",
+                                    timeout=8000,
+                                )
+                            except Exception:
+                                # Modal may have already closed or selector differs — give a
+                                # generous fixed delay as fallback so the network request lands
+                                time.sleep(3)
+                            else:
+                                # Extra buffer after modal closes for the XHR to complete
+                                time.sleep(1)
                             return True
                 except Exception:
                     continue

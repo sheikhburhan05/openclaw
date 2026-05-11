@@ -17,6 +17,8 @@ metadata:
 
 Use **`linkedin-sales-nav-lead-actions`** (save + connect CLI), **`linkedin-sales-navigator`** (browser for search and CLI fallback), and **`hubspot`** together to **source leads** into HubSpot (identity + URLs + basics). Before HubSpot, run **sourcing disqualification** on each profile (see below)—**disqualified leads are not pushed to HubSpot**. **Scoring and qualification** happen in the lead-qualification workflow, not in this skill.
 
+> **Browser observation rule:** When inspecting any browser state (profiles, search results, menus, dialogs), always prefer **snapshot** (`browser_snapshot`) over screenshots. Only fall back to a screenshot if snapshot fails or is unavailable.
+
 ## Step 1 — Fetch leads from LinkedIn Sales Navigator
 
 Open the following pre-filtered LinkedIn Sales Navigator URL directly in the browser:
