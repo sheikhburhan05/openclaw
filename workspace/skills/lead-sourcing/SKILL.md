@@ -3,8 +3,10 @@ name: lead-sourcing
 description: >-
   Run the Sales Navigator → HubSpot sourcing workflow: open a filtered people search, extract
   identity fields plus both LinkedIn URLs (public profile for Apollo, Sales Navigator lead URL),
-  apply sourcing-time disqualification (AI/agency/crypto/enterprise/etc.—no HubSpot push),
-  save qualified leads to Agent's Lead List and send connection requests, and create HubSpot contacts with hs_lead_status NEW—without
+  apply sourcing-time disqualification (AI/agency/crypto/enterprise/etc.—disqualified leads are
+  pushed to HubSpot with hs_lead_status UNQUALIFIED but NOT connected),
+  save all leads to Agent's Lead List, send connection requests for qualified leads only, and create
+  HubSpot contacts (qualified → hs_lead_status NEW, disqualified → hs_lead_status UNQUALIFIED)—without
   scoring or qualification (those live in the lead-qualification prompt). Use when the user
   wants to source leads, push Sales Nav prospects into CRM, run get-leads, or fill the top of
   the funnel before Apollo/qualification. Requires linkedin-sales-nav-lead-actions (save + connect
@@ -55,8 +57,8 @@ Collect the lead from the results.
 3. **Sourcing disqualification** — Before any connect or HubSpot step, evaluate the lead against the checks below using headline, About, company name/description, posts, services, and any visible positioning. **If any disqualifier clearly applies:**
    - **Save to Agent's Lead List** (Step 2a, save-only) so the lead is excluded from all future searches via the `LEAD_LIST` exclusion filter — this prevents the same disqualified profile from surfacing again.
    - Do **not** send a connection request.
-   - Do **not** push to HubSpot.
-   - Note the lead in the run summary under "Skipped at sourcing" with a one-line reason, then return to results.
+   - **Push to HubSpot with `hs_lead_status = UNQUALIFIED`** (Step 3) — use the same identity fields; omit `outreach_account` (no connection was sent).
+   - Note the lead in the run summary under "Sourced as UNQUALIFIED" with a one-line reason, then return to results.
 
 ### Disqualification (sourcing gate)
 
@@ -108,7 +110,7 @@ python3 workspace/skills/linkedin-sales-nav-lead-actions/scripts/linkedin_sales_
 
 2. **If the script fails** (e.g. `ok: false`, timeout, or broken selectors): fall back to the **`linkedin-sales-navigator`** browser flow — open the lead profile, click **Save** button, and choose **Agent's Lead List**.
 
-**After saving a disqualified lead, stop here** — do not proceed to Step 2b or Step 3. Return to search results for the next lead.
+**After saving a disqualified lead, skip Step 2b** and proceed directly to **Step 3** to push the lead to HubSpot with `hs_lead_status = UNQUALIFIED`. Return to search results after the HubSpot push.
 
 ### 2b — Connection request (qualified leads only, after save)
 
@@ -138,7 +140,12 @@ This ensures every **qualified** processed lead is tracked in Sales Navigator an
 
 ## Step 3 — Push each lead into HubSpot as a Contact
 
-For each **qualified** lead only (passed sourcing disqualification; never create contacts for disqualified profiles). Create a contact in HubSpot using the `hubspot` skill with these fields mapped:
+Create a HubSpot contact for **every** processed lead — qualified and disqualified alike. The only difference is `hs_lead_status`:
+
+- **Qualified leads** (passed sourcing disqualification) → `hs_lead_status = NEW`; include `outreach_account` from Step 2b.
+- **Disqualified leads** → `hs_lead_status = UNQUALIFIED`; omit `outreach_account` (no connection was sent).
+
+Use the `hubspot` skill with these fields mapped:
 
 | LinkedIn field                                           | HubSpot property                                                                                                                     |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
@@ -150,12 +157,14 @@ For each **qualified** lead only (passed sourcing disqualification; never create
 | Sales Navigator lead URL (`linkedin.com/sales/lead/...`) | `linkedin_sales_lead_url`  |
 | Email                                                    | `email` (leave blank if not found)                                                                                                   |
 | Phone                                                    | `phone` (leave blank if not found)                                                                                                   |
-| —                                                        | `hs_lead_status` → `NEW`                                                                                                             |
-| `active_account` from Step 2b                            | `outreach_account` — browser profile used to send the connection request (`openclaw` or `openclaw-2`); all downstream outreach skills route back to the same LinkedIn account using this value |
+| —                                                        | `hs_lead_status` → `NEW` (qualified) or `UNQUALIFIED` (disqualified at sourcing)                                                     |
+| `active_account` from Step 2b                            | `outreach_account` — browser profile used to send the connection request (`openclaw` or `openclaw-2`); **omit for disqualified leads** (no connection was sent); all downstream outreach skills route back to the same LinkedIn account using this value |
 
 Do **not** set `hs_lead_grade` or qualification notes here — the qualification workflow fills those after Apollo + scoring.
 
 Use the HubSpot Create Contact API for each lead:
+
+**Qualified lead (`hs_lead_status = NEW`):**
 
 ```
 POST https://api.hubapi.com/crm/v3/objects/contacts
@@ -177,6 +186,27 @@ Authorization: Bearer $HUBSPOT_ACCESS_TOKEN
 }
 ```
 
+**Disqualified lead (`hs_lead_status = UNQUALIFIED`):**
+
+```
+POST https://api.hubapi.com/crm/v3/objects/contacts
+Authorization: Bearer $HUBSPOT_ACCESS_TOKEN
+
+{
+  "properties": {
+    "firstname": "<First Name>",
+    "lastname": "<Last Name>",
+    "company": "<Company Name>",
+    "jobtitle": "<Role>",
+    "hs_linkedin_url": "<LinkedIn Public profile URL>",
+    "linkedin_sales_lead_url": "<Sales Navigator lead URL from address bar>",
+    "email": "<Email or omit if not found>",
+    "phone": "<Phone or omit if not found>",
+    "hs_lead_status": "UNQUALIFIED"
+  }
+}
+```
+
 **Ensure the `outreach_account` HubSpot property exists** (single-line text) before the first run — create it in HubSpot Settings → Properties → Contact properties if not already present.
 
 **URL rules:** `hs_linkedin_url` must be the public profile link. `linkedin_sales_lead_url` must be the **Sales Navigator** page URL only — never put the SN URL into `hs_linkedin_url` (Apollo expects a normal `linkedin.com/in/...` or equivalent member URL).
@@ -186,19 +216,21 @@ Authorization: Bearer $HUBSPOT_ACCESS_TOKEN
 
 After finishing the run, show:
 
-1. **Sourced (HubSpot)** — summary table for leads that cleared disqualification and were created:
+1. **Sourced — NEW (qualified)** — summary table for leads that cleared disqualification:
 
-   - Lead name, company, role, **profile URL** (`hs_linkedin_url`), **Sales Navigator lead URL**, email (or "N/A"), phone (or "N/A"), HubSpot contact ID returned from the API  
+   - Lead name, company, role, **profile URL** (`hs_linkedin_url`), **Sales Navigator lead URL**, email (or "N/A"), phone (or "N/A"), HubSpot contact ID returned from the API
 
-2. **Skipped at sourcing** — brief list of disqualified leads (name, company, one-line reason). No HubSpot ID.
+2. **Sourced — UNQUALIFIED (disqualified at sourcing)** — summary table for leads pushed to HubSpot with `UNQUALIFIED` status:
 
-If any **qualified** contact creation fails (e.g. duplicate email), note the error and continue with the next lead.
+   - Lead name, company, role, **profile URL** (`hs_linkedin_url`), **Sales Navigator lead URL**, email (or "N/A"), phone (or "N/A"), HubSpot contact ID, **disqualification reason** (one line)
+
+If any contact creation fails (e.g. duplicate email), note the error and continue with the next lead.
 
 Once the summary table is complete, close all remaining browser tabs that were opened during this session (Sales Navigator search results tab and any residual profile tabs).
 
 ## Step 5 — Send sourced leads to Slack
 
-After finishing sourcing and HubSpot pushes, send a Slack message listing **only leads added to HubSpot** in this run (name, company, and role). Optionally append a short “Skipped (disqualified): N” count or names if useful for the operator.
+After finishing sourcing and HubSpot pushes, send a Slack message listing leads added to HubSpot in this run. Include **NEW** (qualified) leads by name/company/role, and append a short count for **UNQUALIFIED** leads (e.g. “Unqualified: N”).
 
 Use this command format:
 

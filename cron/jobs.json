@@ -170,28 +170,6 @@
       "state": {}
     },
     {
-      "id": "162a7089-839c-453b-a5c4-6d2ecd1e617c",
-      "name": "Memory Dreaming Promotion",
-      "description": "[managed-by=memory-core.short-term-promotion] Promote weighted short-term recalls into MEMORY.md (limit=10, minScore=0.800, minRecallCount=3, minUniqueQueries=3, recencyHalfLifeDays=14, maxAgeDays=30).",
-      "enabled": true,
-      "createdAtMs": 1777283002536,
-      "schedule": {
-        "kind": "cron",
-        "expr": "0 3 * * *"
-      },
-      "sessionTarget": "isolated",
-      "wakeMode": "now",
-      "payload": {
-        "kind": "agentTurn",
-        "message": "__openclaw_memory_core_short_term_promotion_dream__",
-        "lightContext": true
-      },
-      "delivery": {
-        "mode": "none"
-      },
-      "state": {}
-    },
-    {
       "id": "9e533a8b-813b-4a34-819f-f164626a8ff6",
       "agentId": "main",
       "name": "Connection-Outreach",
@@ -207,6 +185,28 @@
       "payload": {
         "kind": "agentTurn",
         "message": "Execute the end-to-end connection outreach workflow as per standing instructions. Retrieve 1 lead and perform LinkedIn Sales connection outreach for the lead.\n\nBefore sending the outreach message, first check whether the lead has accepted the connection request. If the connection request is still pending or not accepted, skip that lead and do not send the outreach message."
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {}
+    },
+    {
+      "id": "340a3f73-39bb-46ed-a558-ccfefea4e111",
+      "name": "Memory Dreaming Promotion",
+      "description": "[managed-by=memory-core.short-term-promotion] Promote weighted short-term recalls into MEMORY.md (limit=10, minScore=0.800, minRecallCount=3, minUniqueQueries=3, recencyHalfLifeDays=14, maxAgeDays=30).",
+      "enabled": true,
+      "createdAtMs": 1778503969225,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 3 * * *"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "__openclaw_memory_core_short_term_promotion_dream__",
+        "lightContext": true
       },
       "delivery": {
         "mode": "none"

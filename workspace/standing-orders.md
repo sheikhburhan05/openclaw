@@ -6,7 +6,7 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 
 ## Program: Lead Sourcing (Sales Navigator → HubSpot)
 
-**Authority:** Run the end-to-end **lead sourcing** workflow only as defined in `skills/lead-sourcing/SKILL.md` (lead-sourcing skill): open the pre-filtered Sales Navigator people search, extract identity fields plus **both** LinkedIn URLs (public `linkedin.com/in/...` for Apollo and Sales Navigator lead URL from the address bar), save each processed lead to **Agent's Lead List**, create HubSpot contacts with `hs_lead_status` = `NEW`, and report a summary table with HubSpot contact IDs. Use the **linkedin-sales-navigator** and **hubspot** skills as specified there.
+**Authority:** Run the end-to-end **lead sourcing** workflow only as defined in `skills/lead-sourcing/SKILL.md` (lead-sourcing skill): open the pre-filtered Sales Navigator people search, extract identity fields plus **both** LinkedIn URLs (public `linkedin.com/in/...` for Apollo and Sales Navigator lead URL from the address bar), save **every** processed lead to **Agent's Lead List**, create HubSpot contacts for **all** leads (`hs_lead_status` = `NEW` for qualified leads, `hs_lead_status` = `UNQUALIFIED` for leads disqualified at sourcing; no connection request is sent for disqualified leads), and report a summary table with HubSpot contact IDs. Use the **linkedin-sales-navigator** and **hubspot** skills as specified there.
 
 **Trigger:**
 
@@ -24,16 +24,17 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 ### Execution steps (summary)
 
 1. **Read and follow** `skills/lead-sourcing/SKILL.md` for Steps 1–5 (Sales Nav → save to list → round-robin account → HubSpot create contact → report and close tabs).
-2. **Round-robin account selection (Step 2b):** For every qualified lead, read `workspace/state/outreach_account.json`, toggle to the opposite account (`openclaw` ↔ `openclaw-2`), **write the new `last_used` back to the state file immediately** (before the connect request), then send the connection request using that browser profile. Store the chosen account as `outreach_account` in HubSpot alongside the contact.
-3. **Execute–Verify–Report:** After each push, confirm the API response includes a contact id where success; verify summary table fields match what was sent; report failures with diagnosis, no silent drops.
-4. **Hygiene:** Close browser tabs as the skill requires after the summary.
+2. **Round-robin account selection (Step 2b):** For every **qualified** lead, read `workspace/state/outreach_account.json`, toggle to the opposite account (`openclaw` ↔ `openclaw-2`), **write the new `last_used` back to the state file immediately** (before the connect request), then send the connection request using that browser profile. Store the chosen account as `outreach_account` in HubSpot alongside the contact. **Disqualified leads skip Step 2b entirely** — no connection request, no `outreach_account` field.
+3. **HubSpot create for all leads:** Qualified leads → `hs_lead_status = NEW` + `outreach_account`; disqualified leads → `hs_lead_status = UNQUALIFIED`, no `outreach_account`.
+4. **Execute–Verify–Report:** After each push, confirm the API response includes a contact id where success; verify summary table fields match what was sent; report failures with diagnosis, no silent drops. Report includes two sections: **NEW** (qualified) and **UNQUALIFIED** (disqualified at sourcing).
+5. **Hygiene:** Close browser tabs as the skill requires after the summary.
 
 ### What NOT to do
 
 - Do **not** score, qualify, or set `hs_lead_grade` / qualification notes here — that belongs to `skills/lead-qualification/SKILL.md`.
 - Do **not** put the Sales Navigator lead URL into **`hs_linkedin_url`**; Apollo expects the public profile URL only.
 - Do **not** skip saving leads to **Agent's Lead List** before or as part of HubSpot push — that maintains the exclusion filter and avoids duplicates.
-- Do **not** acknowledge “sourced” without completed HubSpot creates (or documented skips/errors) and the closing summary table.
+- Do **not** acknowledge “sourced” without completed HubSpot creates for **both** qualified (`NEW`) and disqualified (`UNQUALIFIED`) leads (or documented errors) and the closing summary table.
 - Do **not** skip the state file write in Step 2b — the round-robin breaks if `workspace/state/outreach_account.json` is not updated every run.
 
 ### Related automation

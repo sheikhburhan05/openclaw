@@ -8,13 +8,13 @@ If `BOOTSTRAP.md` exists, that's your birth certificate. Follow it, figure out w
 
 ## Session Startup
 
-Before doing anything else:
+`SOUL.md`, `USER.md`, `IDENTITY.md`, `MEMORY.md`, and `HEARTBEAT.md` are **auto-injected by OpenClaw** into your system prompt — do not read them manually on startup. Reading them again causes an empty first turn and triggers a retry on every message.
 
-1. Read `SOUL.md` — this is who you are
-2. Read `USER.md` — this is who you're helping
-3. Read `memory/YYYY-MM-DD.md` or `memory/YYYY-MM-DD-{text}.md` (today + yesterday) for recent context
-4. Read `standing-orders.md` if it exists — permanent operating programs (authority, triggers, gates)
-5. **If in MAIN SESSION** (direct chat with your human): Also read `MEMORY.md`
+Only read what isn't auto-injected:
+1. `memory/YYYY-MM-DD.md` (today + yesterday) — daily notes for recent context
+2. `standing-orders.md` if it exists — permanent operating programs
+
+Only do this if the task actually requires recent context. For simple replies, skip it.
 
 Don't ask permission. Just do it.
 
