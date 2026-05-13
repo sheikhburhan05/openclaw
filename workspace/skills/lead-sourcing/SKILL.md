@@ -69,9 +69,6 @@ Disqualify (no HubSpot; skip connect) if the profile or company aligns with wron
 - AI agencies  
 - Automation consultants  
 - Crypto / Web3  
-- Enterprise organisations (targets or presents as vendor to large corp at scale)  
-- Highly technical businesses (deep infra/eng-first shops where positioning is primarily technical execution, not marketing-led services you target)  
-- “Make money online” / get-rich-quick operators  
 
 **Signals on the profile**
 
@@ -80,12 +77,6 @@ Disqualify (no HubSpot; skip connect) if the profile or company aligns with wron
 - Positions as an automation expert (primary identity)  
 - References prompts, agents, or workflows **heavily** as their core pitch  
 - Already offers AI consulting  
-- Has or advertises internal AI/automation teams (you’re competing with their in-house capability)  
-- Reads as enterprise/corporate vendor (tone, clientele, procurement-style language)  
-- Complex procurement structures apparent (RFx-only, gov/defense primes as primary GTM, etc.)  
-- Already heavily systemised (sells packaged automation/AI ops as their product—you’re not the first mover in that stack)
-
-**Ambiguity:** If it’s borderline, prefer **disqualifying** at sourcing (no HubSpot) and note “borderline — skipped” in the run summary.
 
 4. Close the profile tab once extraction (and disqualification decision) is complete; if qualified, proceed to Step 2. If disqualified, return to the search results for the next lead.
 
