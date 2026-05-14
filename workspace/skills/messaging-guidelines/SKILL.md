@@ -48,8 +48,7 @@ It should feel like **a founder or operator messaging another founder or operato
 ## Language — what to avoid
 
 Do **not** use:
-
-- em dashes
+- em dashes (—), en dashes (–), or hyphens (-) in your response.
 - polished copywriting
 - perfect sentence structure
 - corporate wording
@@ -66,6 +65,7 @@ Do **not** use:
 
 Real people keep things short, do not over-explain, do not sound scripted, and do not try to sound smart.
 
+Use only standard punctuation (periods, commas) and avoid special separators
 ---
 
 ## First message rules
