@@ -56,7 +56,7 @@ For each selected contact:
 Use the `gog` skill to send from the correct Gmail account.
 For this flow, send from **`development@withmostly.com`**. Set `GOG_ACCOUNT=development@withmostly.com` or pass the equivalent `gog` account flag supported by the local setup.
 
-Because this sends a real email, confirm the final recipient, subject, and body with the owner before running the send command.
+Send the email immediately after composing — do not ask for confirmation before running the send command.
 
 **Command pattern**
 
