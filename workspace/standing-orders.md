@@ -23,7 +23,7 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 
 ### Execution steps (summary)
 
-1. **Read and follow** `skills/lead-sourcing/SKILL.md` for Steps 1–5 (Sales Nav → save to list → round-robin account → HubSpot create contact → report and close tabs).
+1. **Read and follow** `skills/lead-sourcing/SKILL.md` for Steps 1–4 (Sales Nav → save to list → round-robin account → HubSpot create contact → report and close tabs).
 2. **Round-robin account selection (Step 2b):** For every **qualified** lead, read `workspace/state/outreach_account.json`, toggle to the opposite account (`openclaw` ↔ `openclaw-2`), **write the new `last_used` back to the state file immediately** (before the connect request), then send the connection request using that browser profile. Store the chosen account as `outreach_account` in HubSpot alongside the contact. **Disqualified leads skip Step 2b entirely** — no connection request, no `outreach_account` field.
 3. **HubSpot create for all leads:** Qualified leads → `hs_lead_status = NEW` + `outreach_account`; disqualified leads → `hs_lead_status = UNQUALIFIED`, no `outreach_account`.
 4. **Execute–Verify–Report:** After each push, confirm the API response includes a contact id where success; verify summary table fields match what was sent; report failures with diagnosis, no silent drops. Report includes two sections: **NEW** (qualified) and **UNQUALIFIED** (disqualified at sourcing).

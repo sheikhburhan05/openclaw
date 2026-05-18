@@ -218,13 +218,3 @@ After finishing the run, show:
 If any contact creation fails (e.g. duplicate email), note the error and continue with the next lead.
 
 Once the summary table is complete, close all remaining browser tabs that were opened during this session (Sales Navigator search results tab and any residual profile tabs).
-
-## Step 5 — Send sourced leads to Slack
-
-After finishing sourcing and HubSpot pushes, send a Slack message listing leads added to HubSpot in this run. Include **NEW** (qualified) leads by name/company/role, and append a short count for **UNQUALIFIED** leads (e.g. “Unqualified: N”).
-
-Use this command format:
-
-```bash
-openclaw message send --channel slack --target "channel:C0B0GAZ032L" --message "Sourced leads: <Lead 1 — Company — Role>; <Lead 2 — Company — Role>; ..."
-```
