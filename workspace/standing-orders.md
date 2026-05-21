@@ -11,7 +11,7 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 **Trigger:**
 
 - **On-demand:** Whenever the owner asks to source leads, run get-leads, push Sales Nav prospects into the CRM, or fill the top of the funnel before Apollo/qualification.
-- **Scheduled (optional):** If a cron job is added, its message should say only to execute **this program** per `standing-orders.md` / `skills/lead-sourcing/SKILL.md` — do not duplicate the full workflow in the cron body.
+- **Scheduled (optional):** If a cron job is added, its message should say only to execute **this program** per `standing-orders.md` / `skills/lead-sourcing/SKILL.md` — do not duplicate the full workflow in the cron body. To pin the LinkedIn account for that run, add e.g. `browser-profile openclaw` or `browser-profile openclaw-2` in the cron message; the agent uses that profile for connects and **does not** read or update `workspace/state/outreach_account.json`.
 
 **Approval gate:** None for standard runs **inside** the skill’s rules (browser + HubSpot API only). If the owner has classified “messages that leave the machine” broadly, treat **delivering summaries to external channels** per `AGENTS.md` red lines. Escalate before bulk or experimental changes to HubSpot property definitions beyond creating the named custom properties in the skill.
 
@@ -24,7 +24,7 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 ### Execution steps (summary)
 
 1. **Read and follow** `skills/lead-sourcing/SKILL.md` for Steps 1–4 (Sales Nav → save to list → round-robin account → HubSpot create contact → report and close tabs).
-2. **Round-robin account selection (Step 2b):** For every **qualified** lead, read `workspace/state/outreach_account.json`, toggle to the opposite account (`openclaw` ↔ `openclaw-2`), **write the new `last_used` back to the state file immediately** (before the connect request), then send the connection request using that browser profile. Store the chosen account as `outreach_account` in HubSpot alongside the contact. **Disqualified leads skip Step 2b entirely** — no connection request, no `outreach_account` field.
+2. **Outreach account (Step 2b):** For every **qualified** lead, if the run prompt specifies `browser-profile openclaw` or `openclaw-2`, use that profile for the connection request and HubSpot `outreach_account` — **no** read/write of `workspace/state/outreach_account.json`. Otherwise round-robin: read the state file, toggle (`openclaw` ↔ `openclaw-2`), **write `last_used` back immediately** (before connect), then connect with that profile. Store the chosen account as `outreach_account` in HubSpot. **Disqualified leads skip Step 2b** — no connection request, no `outreach_account`.
 3. **HubSpot create for all leads:** Qualified leads → `hs_lead_status = NEW` + `outreach_account`; disqualified leads → `hs_lead_status = UNQUALIFIED`, no `outreach_account`.
 4. **Execute–Verify–Report:** After each push, confirm the API response includes a contact id where success; verify summary table fields match what was sent; report failures with diagnosis, no silent drops. Report includes two sections: **NEW** (qualified) and **UNQUALIFIED** (disqualified at sourcing).
 5. **Hygiene:** Close browser tabs as the skill requires after the summary.
@@ -35,7 +35,7 @@ Programs below grant standing authority within stated boundaries. **Lead sourcin
 - Do **not** put the Sales Navigator lead URL into **`hs_linkedin_url`**; Apollo expects the public profile URL only.
 - Do **not** skip saving leads to **Agent's Lead List** before or as part of HubSpot push — that maintains the exclusion filter and avoids duplicates.
 - Do **not** acknowledge “sourced” without completed HubSpot creates for **both** qualified (`NEW`) and disqualified (`UNQUALIFIED`) leads (or documented errors) and the closing summary table.
-- Do **not** skip the state file write in Step 2b — the round-robin breaks if `workspace/state/outreach_account.json` is not updated every run.
+- Do **not** skip the state file write in Step 2b when **no** `browser-profile` is named in the run prompt — round-robin breaks if `workspace/state/outreach_account.json` is not updated on those runs.
 
 ### Related automation
 

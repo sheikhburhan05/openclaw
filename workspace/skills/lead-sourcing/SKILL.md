@@ -17,7 +17,7 @@ metadata:
     emoji: 🎯
 ---
 
-Use **`linkedin-sales-nav-lead-actions`** (save + connect CLI), **`linkedin-sales-navigator`** (browser for search and CLI fallback), and **`hubspot`** together to **source leads** into HubSpot (identity + URLs + basics). Before HubSpot, run **sourcing disqualification** on each profile (see below)—**disqualified leads are not pushed to HubSpot**. **Scoring and qualification** happen in the lead-qualification workflow, not in this skill.
+Use **`linkedin-sales-nav-lead-actions`** (save + connect CLI), **`linkedin-sales-navigator`** (browser for search and CLI fallback), and **`hubspot`** together to **source leads** into HubSpot (identity + URLs + basics). Before connect, run **sourcing disqualification** on each profile (see below)—**disqualified leads skip connect** but are still pushed to HubSpot as `UNQUALIFIED`. **Scoring and qualification** happen in the lead-qualification workflow, not in this skill.
 
 > **Browser observation rule:** When inspecting any browser state (profiles, search results, menus, dialogs), always prefer **snapshot** (`browser_snapshot`) over screenshots. Only fall back to a screenshot if snapshot fails or is unavailable.
 
@@ -62,7 +62,7 @@ Collect the lead from the results.
 
 ### Disqualification (sourcing gate)
 
-Disqualify (no HubSpot; skip connect) if the profile or company aligns with wrong-fit industries or positioning:
+Disqualify (skip connect; HubSpot `UNQUALIFIED`) if the profile or company aligns with wrong-fit industries or positioning:
 
 **Industry / business model**
 
@@ -105,18 +105,25 @@ python3 workspace/skills/linkedin-sales-nav-lead-actions/scripts/linkedin_sales_
 
 ### 2b — Connection request (qualified leads only, after save)
 
-**Pick the outreach account (round-robin):**
+**Pick the outreach account** — use an explicit profile from the run prompt when given; otherwise round-robin from state.
+
+**Run-prompt override (cron, on-demand, or owner message):** If the instruction for this run names a browser profile — e.g. `browser-profile openclaw`, `browser-profile: openclaw-2`, or `--browser-profile openclaw` — set `active_account` to that value (`openclaw` or `openclaw-2` only). **Do not** read or write `workspace/state/outreach_account.json` in that case; the prompt pins the account for this run.
+
+**Default (no profile in the run prompt) — round-robin:**
 
 1. Read `workspace/state/outreach_account.json`. If the file is missing or unreadable, treat `last_used` as `openclaw-2`.
 2. Toggle: if `last_used` is `openclaw`, set `active_account = openclaw-2`; if it is `openclaw-2` (or anything else), set `active_account = openclaw`.
 3. **Update state file** — write `{"last_used": "<active_account>"}` back to `workspace/state/outreach_account.json` immediately, before sending the connection request, so the slot is consumed even if the connect step fails.
+
+Then for every qualified lead:
+
 4. Send the connection request using `--browser-profile <active_account>`.
 5. Carry `active_account` forward to Step 3 for HubSpot.
 
 Use browser profile `<active_account>` (`openclaw` or `openclaw-2`) for the connection request.
 
 ```bash
-# <active_account> is the round-robin result from above (openclaw or openclaw-2).
+# <active_account> = run-prompt browser-profile override, else round-robin (openclaw or openclaw-2).
 # Default to openclaw if undetermined.
 python3 workspace/skills/linkedin-sales-nav-lead-actions/scripts/linkedin_sales_nav_cli.py \
   --browser-profile <active_account> \
