@@ -5,7 +5,7 @@
       "id": "dc83f20c-f3fb-43fb-8289-d9a457e2aeec",
       "agentId": "main",
       "name": "Lead Sourcing",
-      "enabled": false,
+      "enabled": true,
       "createdAtMs": 1776423233124,
       "schedule": {
         "kind": "cron",
@@ -30,7 +30,7 @@
       "id": "88fdef23-e195-4a67-a6d6-675d693f9a14",
       "agentId": "main",
       "name": "Lead Qualification",
-      "enabled": false,
+      "enabled": true,
       "deleteAfterRun": false,
       "createdAtMs": 1776668792937,
       "schedule": {
@@ -54,7 +54,7 @@
       "id": "2d0d530b-6cc5-4091-9975-e48bfd8daa5d",
       "agentId": "main",
       "name": "Lead Outreach",
-      "enabled": false,
+      "enabled": true,
       "deleteAfterRun": false,
       "createdAtMs": 1776674210893,
       "schedule": {
@@ -78,7 +78,7 @@
       "id": "51c668df-7999-4a50-8087-fef83a93f661",
       "agentId": "main",
       "name": "Lead Conversation",
-      "enabled": false,
+      "enabled": true,
       "deleteAfterRun": false,
       "createdAtMs": 1776840235443,
       "schedule": {
@@ -103,7 +103,7 @@
       "id": "0e3fb0a1-5d90-4d66-9c91-9ed4f523c8a2",
       "agentId": "main",
       "name": "LinkedIn Follow-Up",
-      "enabled": false,
+      "enabled": true,
       "deleteAfterRun": false,
       "createdAtMs": 1777003200000,
       "schedule": {
@@ -126,7 +126,7 @@
       "id": "4f8dd909-8863-47f8-9bd2-901a98e39d96",
       "agentId": "main",
       "name": "Email Follow-Up",
-      "enabled": false,
+      "enabled": true,
       "deleteAfterRun": false,
       "createdAtMs": 1777003260000,
       "schedule": {
@@ -173,7 +173,7 @@
       "id": "9e533a8b-813b-4a34-819f-f164626a8ff6",
       "agentId": "main",
       "name": "Connection-Outreach",
-      "enabled": false,
+      "enabled": true,
       "deleteAfterRun": false,
       "createdAtMs": 1778232692623,
       "schedule": {
