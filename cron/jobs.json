@@ -41,7 +41,7 @@
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Execute the end-to-end lead qualification workflow as per standing instructions. Retrieve 1 leads and perform full qualification on each."
+        "message": "Execute the end-to-end lead qualification workflow as per standing instructions. Retrieve 2 leads and perform full qualification on each."
       },
       "delivery": {
         "mode": "none",
@@ -65,7 +65,7 @@
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Execute the end-to-end lead outreach workflow as per standing instructions. Retrieve 1 leads and perform linkedIn sales outreach on each."
+        "message": "Execute the end-to-end lead outreach workflow as per standing instructions. Retrieve 2 leads and perform linkedIn sales outreach on each."
       },
       "delivery": {
         "mode": "none",
@@ -114,7 +114,7 @@
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Run the LinkedIn follow-up workflow per standing instructions for eligible OPEN leads (48h+ since outreach_date):\n\nSend one Sales Navigator follow-up in-thread\nAppend to outreach_conversation\nSet linkedin_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 1 leads per run (even if more eligible leads exist)",
+        "message": "Run the LinkedIn follow-up workflow per standing instructions for eligible OPEN leads (48h+ since outreach_date):\n\nSend one Sales Navigator follow-up in-thread\nAppend to outreach_conversation\nSet linkedin_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 2 leads per run (even if more eligible leads exist)",
         "lightContext": false
       },
       "delivery": {
@@ -137,7 +137,7 @@
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Run the email follow-up workflow per standing instructions for OPEN leads where linkedin_follow_up_sent = true and outreach_date is 72h+:\n\nSend one follow-up email using gog\nAppend to outreach_conversation\nSet email_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 1 leads per run (even if more eligible leads exist)",
+        "message": "Run the email follow-up workflow per standing instructions for OPEN leads where linkedin_follow_up_sent = true and outreach_date is 72h+:\n\nSend one follow-up email using gog\nAppend to outreach_conversation\nSet email_follow_up_sent = true\nDo not update outreach_date\n\nConstraint:\n\nSend follow-ups to a maximum of 2 leads per run (even if more eligible leads exist)",
         "lightContext": true
       },
       "delivery": {
@@ -184,7 +184,7 @@
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Execute the end-to-end connection outreach workflow as per standing instructions. Retrieve 1 lead and perform LinkedIn Sales connection outreach for the lead.\n\nBefore sending the outreach message, first check whether the lead has accepted the connection request. If the connection request is still pending or not accepted, skip that lead and do not send the outreach message."
+        "message": "Execute the end-to-end connection outreach workflow as per standing instructions. Retrieve 2 leads and perform LinkedIn Sales connection outreach for each.\n\nBefore sending the outreach message, first check whether the lead has accepted the connection request. If the connection request is still pending or not accepted, skip that lead and do not send the outreach message."
       },
       "delivery": {
         "mode": "none"
