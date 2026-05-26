@@ -15,7 +15,7 @@
       "wakeMode": "next-heartbeat",
       "payload": {
         "kind": "agentTurn",
-        "message": "Run the end-to-end lead sourcing workflow per standing orders. Source 1 leads from LinkedIn Sales Navigator and push that leads to HubSpot."
+        "message": "Run the end-to-end lead sourcing workflow per standing orders. browser-profile openclaw. Source at least 2 leads from LinkedIn Sales Navigator and push each to HubSpot."
       },
       "delivery": {
         "mode": "none",

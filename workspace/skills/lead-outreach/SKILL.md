@@ -22,7 +22,7 @@ Use the `hubspot` skill and `linkedin-sales-navigator` skill together to **outre
 
 **Before** fetching HubSpot contacts or opening lead tabs:
 
-1. **Read remaining InMail credits** in Sales Navigator (browser): open Sales Navigator (`linkedin-sales-navigator` skill), **snapshot** the chrome where LinkedIn surfaces monthly InMail allowance (often near compose / account or messaging entry points — wording like "InMail credits" or "credits remaining"). Record the integer **credits remaining**.
+1. **Read remaining InMail credits** in Sales Navigator (browser): open Sales Navigator (`linkedin-sales-navigator` skill), navigate to **`https://www.linkedin.com/sales/inbox/compose?filter=DECLINED`**, then **snapshot** the page — LinkedIn surfaces monthly InMail allowance there (wording like "InMail credits" or "credits remaining"). Record the integer **credits remaining**.
 2. **Compute today's send budget** using **weekdays only** (Monday-Friday): count each weekday from **today** through the **last day of the current calendar month** (inclusive). Divide **`credits_remaining // working_days_remaining`** (integer division). That is the **maximum messages to send this run** (cap HubSpot fetch + sends at this number). **Re-run this step each session** with fresh credits so the budget tracks the rest of the month.
 
 **Python helper** (stdlib only): [`scripts/inmail_monthly_pacing.py`](scripts/inmail_monthly_pacing.py)
